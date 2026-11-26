@@ -1,0 +1,78 @@
+---
+import LineIcon from '../LineIcon.astro';
+import MolareSensibilita from '../illustrazioni/MolareSensibilita.astro';
+import { testoLineaSu, type Linea } from '../../data/linee';
+import type { ContenutiLinea } from '../../data/linee-contenuti';
+
+interface Props {
+  linea: Linea;
+  problema: NonNullable<ContenutiLinea['problema']>;
+}
+const { linea, problema } = Astro.props;
+const illustrazioni = { 'molare-sensibilita': MolareSensibilita };
+const Illustrazione = illustrazioni[problema.illustrazione];
+---
+<section class="lprob" aria-labelledby="problema-t" style={`--lp-tint:${linea.tintaChiara}`}>
+  <div class="container lprob__grid">
+    <div class="lprob__text">
+      <p class="eyebrow" style={`color:${testoLineaSu(linea, '#FFFFFF')}`}>IL PROBLEMA</p>
+      <h2 class="section-title lprob__title" id="problema-t">{problema.titolo}</h2>
+      <div class="lprob__paras">
+        {problema.paragrafi.map((p) => <p set:html={p} />)}
+      </div>
+      <div class="lprob__stimoli">
+        <h3 class="lprob__stimoli-title" id="stimoli-t">{problema.stimoliTitolo.toUpperCase()}</h3>
+        <ul role="list" aria-labelledby="stimoli-t">
+          {problema.stimoli.map((s) => (
+            <li>
+              <span class="lprob__icon"><LineIcon name={s.icona} size={26} color={testoLineaSu(linea, linea.tintaChiara, 3)} /></span>
+              <span class="lprob__label">{s.testo}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <figure class="lprob__figure">
+      <Illustrazione />
+      <figcaption>{problema.didascalia}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .lprob { padding: var(--section-pad) 0; }
+  .lprob__grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
+  .lprob__text { display: flex; flex-direction: column; }
+  .lprob__title { margin-top: 14px; }
+  .lprob__paras { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+  .lprob__paras p { font-size: var(--fs-body-lg); line-height: var(--lh-body); }
+  .lprob__stimoli { display: flex; flex-direction: column; gap: 14px; margin-top: 40px; }
+  .lprob__stimoli-title { font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .14em; line-height: 1.5; color: var(--c-strong); }
+  .lprob__stimoli ul { display: grid; grid-template-columns: repeat(4, max-content); gap: 0 24px; margin: 0; }
+  .lprob__stimoli li { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .lprob__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--lp-tint);
+  }
+  .lprob__label { font-size: 15px; font-weight: var(--fw-bold); color: var(--c-strong); }
+
+  .lprob__figure {
+    margin: 0;
+    padding: 24px 20px;
+    background: var(--lp-tint);
+    border-radius: 0 0 48px 0;
+  }
+  .lprob__figure figcaption { margin-top: 16px; font-size: 14px; line-height: 1.5; color: var(--c-text); }
+
+  @media (min-width: 1024px) {
+    .lprob__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+    .lprob__text { grid-column: 1 / span 6; }
+    .lprob__figure { grid-column: 7 / span 6; padding: 42px 42px 40px; }
+    .lprob__stimoli ul { gap: 0 36px; }
+  }
+</style>

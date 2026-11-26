@@ -1,0 +1,15 @@
+---
+/** Icona lineare decorativa (aria-hidden). Colore: currentColor o `color`. */
+import { iconeLinea, type IconaLinea } from '../data/icone';
+interface Props {
+  name: IconaLinea;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  class?: string;
+}
+const { name, size = 28, strokeWidth = 1.8, color = 'currentColor', class: className } = Astro.props;
+---
+<svg aria-hidden="true" focusable="false" class={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} stroke-width={strokeWidth} stroke-linecap="round" stroke-linejoin="round">
+  {iconeLinea[name].map((d) => <path d={d} />)}
+</svg>

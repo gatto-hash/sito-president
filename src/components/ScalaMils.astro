@@ -1,0 +1,82 @@
+---
+/**
+ * Scala MILS a 4 righe con disegno delle setole di spessore crescente.
+ * La riga del prodotto è evidenziata (bordo, ombra, etichetta testuale): non solo colore.
+ */
+import { scalaMils, rigaMils } from '../data/prodotti';
+interface Props {
+  mils: number;
+  nomeProdotto: string;
+  /** Descrizione breve per l'aria-label, es. "setole extra soft". */
+  descrizione?: string;
+}
+const { mils, nomeProdotto, descrizione } = Astro.props;
+const attiva = rigaMils(mils);
+const setole = Array.from({ length: 8 }, (_, i) => 6 + i * 12);
+---
+<figure
+  class="mils-scale"
+  role="group"
+  aria-label={`Scala MILS: lo ${nomeProdotto} ha ${mils} MILS${descrizione ? `, ${descrizione}` : ''}`}
+>
+  <ul role="list" class="mils-scale__list">
+    {scalaMils.map((r, i) => (
+      <li class:list={['mils-scale__row', i === attiva && 'is-active']}>
+        <svg aria-hidden="true" width="96" height="36" viewBox="0 0 96 36" class="mils-scale__bristles">
+          {setole.map((x) => (
+            <line x1={x} y1="5" x2={x} y2="31" stroke={i === attiva ? '#4A6FA0' : '#8A99AD'} stroke-width={r.spessore} stroke-linecap="round" />
+          ))}
+        </svg>
+        <span class="mils-scale__text">
+          <span class="mils-scale__label">{r.etichetta} · {r.durezza}</span>
+          <span class="mils-scale__diam">Setole {r.diametro}</span>
+        </span>
+        {i === attiva ? <span class="mils-scale__tag">{nomeProdotto.toUpperCase()}</span> : <span></span>}
+      </li>
+    ))}
+  </ul>
+</figure>
+
+<style>
+  .mils-scale { margin: 0; }
+  .mils-scale__list { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+  .mils-scale__row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--c-bg-grey);
+    border: 2px solid transparent;
+  }
+  .mils-scale__row.is-active {
+    background: #FFFFFF;
+    border-color: var(--c-mils-bg);
+    box-shadow: 0 8px 20px rgba(74, 111, 160, .16);
+  }
+  .mils-scale__bristles { width: 72px; height: auto; }
+  .mils-scale__text { display: flex; flex-direction: column; }
+  .mils-scale__label { font-size: 15px; font-weight: var(--fw-bold); line-height: 1.5; color: var(--c-strong); }
+  .mils-scale__diam { font-size: 13px; line-height: 1.5; color: var(--c-muted); }
+  .mils-scale__tag {
+    grid-column: 2;
+    justify-self: start;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--c-mils-bg);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .08em;
+    white-space: nowrap;
+  }
+  .mils-scale__row > span:empty { display: none; }
+
+  @media (min-width: 600px) {
+    .mils-scale__row { grid-template-columns: 96px 1fr auto; }
+    .mils-scale__bristles { width: 96px; }
+    .mils-scale__tag { grid-column: auto; }
+    .mils-scale__row > span:empty { display: block; }
+  }
+</style>

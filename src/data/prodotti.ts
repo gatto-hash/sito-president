@@ -168,3 +168,18 @@ export const prodottiDellaLinea = (linea: string) => prodotti.filter((p) => p.li
 export const getProdotto = (linea: string, slug: string) =>
   prodotti.find((p) => p.linea === linea && p.slug === slug);
 export const hrefProdotto = (p: Prodotto) => rotte.prodotto(p.linea, p.slug);
+
+/* ---------------- Scala MILS (riga del prodotto evidenziata) ---------------- */
+export const scalaMils = [
+  { min: 4, max: 4, etichetta: '4 MILS', durezza: 'ULTRA SOFT', diametro: 'Ø 0,10 mm', spessore: 2.2 },
+  { min: 6, max: 6, etichetta: '6 MILS', durezza: 'SOFT', diametro: 'Ø 0,15 mm', spessore: 3.3 },
+  { min: 7, max: 9, etichetta: '7-9 MILS', durezza: 'SOFT-MEDIUM', diametro: 'Ø 0,17-0,22 mm', spessore: 4.2 },
+  { min: 9, max: 10, etichetta: '9-10 MILS', durezza: 'MEDIUM-HARD', diametro: 'Ø 0,22-0,25 mm', spessore: 5.3 },
+] as const;
+
+/** Indice della riga della scala MILS che contiene il valore (5 MILS → riga 4-6 più vicina). */
+export const rigaMils = (mils: number) => {
+  const i = scalaMils.findIndex((r) => mils >= r.min && mils <= r.max);
+  if (i >= 0) return i;
+  return mils < 6 ? 0 : scalaMils.length - 1;
+};

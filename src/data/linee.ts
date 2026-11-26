@@ -41,9 +41,11 @@ export interface Linea {
   benefici: string[];
   /** Attivi selezionati (vuoto se la linea non li dichiara, es. DENTURE). */
   attivi: Attivo[];
+  /** Link Amazon della linea (provvisorio: ricerca, in attesa dello store PRESIDENT). */
+  amazonUrl: string;
 }
 
-type LineaBase = Omit<Linea, 'still' | 'life' | 'lifeY' | 'chiara'>;
+type LineaBase = Omit<Linea, 'still' | 'life' | 'lifeY' | 'chiara' | 'amazonUrl'>;
 
 const base: LineaBase[] = [
   {
@@ -113,9 +115,9 @@ const base: LineaBase[] = [
       'Assicurare una pulizia efficace e delicata',
     ],
     attivi: [
-      { nome: 'Nitrato di Potassio', funzione: 'interrompe la trasmissione del segnale doloroso' },
-      { nome: 'Idrossiapatite', funzione: 'favorisce la remineralizzazione dello smalto' },
-      { nome: 'Bisabololo e Tiglio', funzione: 'leniscono le irritazioni dei tessuti orali' },
+      { nome: 'Nitrato di Potassio', funzione: 'interrompe la trasmissione del segnale doloroso e riduce la sensibilità' },
+      { nome: 'Idrossiapatite', funzione: 'favorisce la remineralizzazione dello smalto e chiude i tubuli dentinali' },
+      { nome: 'Bisabololo e Tiglio', funzione: 'proprietà lenitive, alleviano le irritazioni dei tessuti orali' },
       { nome: 'Fluoruro di Sodio', funzione: 'rinforza lo smalto e aiuta a prevenire la carie' },
     ],
   },
@@ -207,6 +209,7 @@ export const linee: Linea[] = base.map((l) => ({
   still: `/assets/img/${l.id}-still.jpg`,
   life: `/assets/img/${l.id}-life.jpg`,
   lifeY: 30,
+  amazonUrl: `https://www.amazon.it/s?k=${encodeURIComponent(`president ${l.id}`).replace(/%20/g, '+')}`,
 }));
 
 export const getLinea = (id: string) => linee.find((l) => l.id === id);
@@ -219,3 +222,31 @@ export const gradienteLinee = (direzione = '90deg') => {
     .join(', ');
   return `linear-gradient(${direzione}, ${stops})`;
 };
+
+/** Linea precedente e successiva, in ordine circolare (prima di CLASSIC viene DENTURE). */
+export const lineeVicine = (id: string) => {
+  const i = linee.findIndex((l) => l.id === id);
+  const n = linee.length;
+  return { precedente: linee[(i - 1 + n) % n], successiva: linee[(i + 1) % n] };
+};
+
+/* ---------------- Contrasto (WCAG) ---------------- */
+const lum = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+export const contrasto = (a: string, b: string) => {
+  const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+};
+
+/**
+ * Colore della linea da usare per il testo su un fondo chiaro (tinta chiara, bianco):
+ * il "colore testo su bianco" se raggiunge il contrasto richiesto, altrimenti #1D1D1B.
+ * minimo: 4.5 per testo normale, 3 per testo grande (≥ 24px, o ≥ 18.66px Bold).
+ */
+export const testoLineaSu = (linea: Linea, fondo: string, minimo = 4.5) =>
+  contrasto(linea.testoSuBianco, fondo) >= minimo ? linea.testoSuBianco : '#1D1D1B';

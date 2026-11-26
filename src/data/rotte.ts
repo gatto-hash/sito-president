@@ -11,6 +11,8 @@ export const rotte = {
     spazzolini: '/ricerca/gli-spazzolini/',
   },
   contatti: '/contatti/',
+  /** TODO: destinazione di "Trova lo store" da confermare con il cliente (punto aperto). */
+  trovaStore: '/contatti/',
   privacy: '/privacy-policy/',
   cookie: '/cookie-policy/',
   noteLegali: '/note-legali/',

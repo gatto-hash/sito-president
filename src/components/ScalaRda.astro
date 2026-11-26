@@ -1,0 +1,108 @@
+---
+/**
+ * Scala RDA 0-250 a 4 segmenti con il marcatore del prodotto.
+ * Leggibile senza colori: fasce numerate, tacche, legenda testuale; aria-label con il valore.
+ */
+import { scalaRda, livelloRda } from '../data/prodotti';
+interface Props {
+  rda: number;
+  nomeProdotto: string;
+}
+const { rda, nomeProdotto } = Astro.props;
+const MAX = 250;
+const pct = Math.min(Math.max(rda / MAX, 0), 1) * 100;
+const bubble =
+  pct < 30 ? 'left:0' : pct > 70 ? 'right:0' : `left:${pct}%;transform:translateX(-50%)`;
+const legenda = [
+  { testo: 'sicura per dentina, cemento e smalto' },
+  { testo: 'sicura per lo smalto, attenzione sulla dentina' },
+  { testo: 'rischiosa per dentina e cemento' },
+  { testo: 'potenzialmente lesiva' },
+];
+const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+const tacche = [0, 70, 100, 150, 250];
+---
+<figure
+  class="rda-scale"
+  role="group"
+  aria-label={`Scala RDA da 0 a ${MAX}: il ${nomeProdotto} ha RDA ${rda}, abrasività ${livelloRda(rda)}`}
+>
+  <div class="rda-scale__marker" aria-hidden="true">
+    <span class="rda-scale__bubble" style={bubble}>RDA {rda} · {nomeProdotto}</span>
+    <span class="rda-scale__arrow" style={`left:max(0px, calc(${pct}% - 7px))`}></span>
+  </div>
+  <div class="rda-scale__bar" aria-hidden="true">
+    {scalaRda.map((s) => (
+      <span style={`flex:0 0 ${s.larghezza}%;background:${s.colore}`}>{s.da} – {s.a}</span>
+    ))}
+  </div>
+  <div class="rda-scale__ticks" aria-hidden="true">
+    {tacche.map((t, i) => (
+      <span style={`left:${(t / MAX) * 100}%;transform:translateX(${i === 0 ? '0' : i === tacche.length - 1 ? '-100%' : '-50%'})`}>{t}</span>
+    ))}
+  </div>
+  <ul role="list" class="rda-scale__legend">
+    {scalaRda.map((s, i) => (
+      <li>
+        <span class="rda-scale__swatch" aria-hidden="true" style={`background:${s.colore}`}></span>
+        <span><b>{cap(s.livello)} ({s.da}-{s.a})</b> – {legenda[i].testo}</span>
+      </li>
+    ))}
+  </ul>
+</figure>
+
+<style>
+  .rda-scale { margin: 0; width: 100%; max-width: 508px; }
+  .rda-scale__marker { position: relative; height: 52px; }
+  .rda-scale__bubble {
+    position: absolute;
+    bottom: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--c-strong);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: var(--fw-bold);
+    white-space: nowrap;
+  }
+  .rda-scale__arrow {
+    position: absolute;
+    bottom: 4px;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid var(--c-strong);
+  }
+  .rda-scale__bar { display: flex; border-radius: 4px; overflow: hidden; }
+  .rda-scale__bar span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border-right: 2px solid #FFFFFF;
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+    color: var(--c-strong);
+    white-space: nowrap;
+  }
+  .rda-scale__bar span:last-child { border-right: 0; }
+  .rda-scale__ticks { position: relative; height: 20px; margin-top: 6px; }
+  .rda-scale__ticks span { position: absolute; font-size: 12px; color: var(--c-muted); }
+  .rda-scale__legend {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px 20px;
+    margin: 12px 0 0;
+  }
+  .rda-scale__legend li { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.45; }
+  .rda-scale__legend b { color: var(--c-strong); }
+  .rda-scale__swatch { flex: none; width: 11px; height: 11px; margin-top: 4px; }
+
+  @media (min-width: 600px) {
+    .rda-scale__legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 420px) {
+    .rda-scale__bar span { font-size: 10.5px; }
+  }
+</style>

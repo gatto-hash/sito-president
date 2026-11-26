@@ -1,0 +1,81 @@
+---
+import Icon from '../Icon.astro';
+import BadgeRda from '../badge/BadgeRda.astro';
+import BadgeMils from '../badge/BadgeMils.astro';
+import ScalaRda from '../ScalaRda.astro';
+import ScalaMils from '../ScalaMils.astro';
+import { rotte } from '../../data/rotte';
+import type { Linea } from '../../data/linee';
+import type { ContenutiLinea } from '../../data/linee-contenuti';
+import type { Prodotto } from '../../data/prodotti';
+
+interface Props {
+  linea: Linea;
+  scienza: NonNullable<ContenutiLinea['scienza']>;
+  prodotti: Prodotto[];
+}
+const { scienza, prodotti } = Astro.props;
+const pRda = prodotti.find((p) => p.slug === scienza.rda.prodotto && p.rda !== undefined);
+const pMils = prodotti.find((p) => p.slug === scienza.mils.prodotto && p.mils !== undefined);
+---
+<section class="lsci" aria-labelledby="scienza-t">
+  <div class="container">
+    <h2 class="section-title" id="scienza-t">La scienza dietro la linea</h2>
+    <p class="subtitle lsci__subtitle">{scienza.sottotitolo}</p>
+
+    <div class="lsci__grid">
+      {pRda && (
+        <article class="lsci__card" aria-labelledby="sci-rda-t">
+          <div class="lsci__head">
+            <BadgeRda rda={pRda.rda} size="md" />
+            <span class="lsci__kind">ABRASIVITÀ DICHIARATA</span>
+          </div>
+          <h3 class="lsci__title" id="sci-rda-t">{pRda.nome}: RDA {pRda.rda}</h3>
+          <p class="lsci__p" set:html={scienza.rda.testo} />
+          <div class="lsci__scale"><ScalaRda rda={pRda.rda!} nomeProdotto={pRda.nome} /></div>
+          <a class="arrow-link lsci__link" href={rotte.ricerca.abrasivita}>Scopri l’abrasività dichiarata <Icon name="arrow-right" /></a>
+        </article>
+      )}
+      {pMils && (
+        <article class="lsci__card" aria-labelledby="sci-mils-t">
+          <div class="lsci__head">
+            <BadgeMils mils={pMils.mils} size="md" />
+            <span class="lsci__kind">MORBIDEZZA DELLE SETOLE</span>
+          </div>
+          <h3 class="lsci__title" id="sci-mils-t">{pMils.nome}: {pMils.mils} MILS, {pMils.claim.toLowerCase()}</h3>
+          <p class="lsci__p" set:html={scienza.mils.testo} />
+          <div class="lsci__scale">
+            <ScalaMils mils={pMils.mils!} nomeProdotto={pMils.nome} descrizione={`setole ${pMils.claim.toLowerCase()}`} />
+          </div>
+          <a class="arrow-link lsci__link" href={rotte.ricerca.spazzolini}>Come scegliere lo spazzolino <Icon name="arrow-right" /></a>
+        </article>
+      )}
+    </div>
+    <p class="lsci__source">{scienza.fonte}</p>
+  </div>
+</section>
+
+<style>
+  .lsci { padding: var(--section-pad) 0; background: var(--c-bg-grey); }
+  .lsci__subtitle { margin-top: 12px; }
+  .lsci__grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
+  .lsci__card {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 20px;
+    background: #FFFFFF;
+    border-radius: var(--radius-card);
+  }
+  .lsci__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; min-height: 34px; }
+  .lsci__kind { font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .16em; color: var(--c-strong); }
+  .lsci__title { margin-top: 16px; font-size: 22px; font-weight: var(--fw-bold); line-height: 1.3; color: var(--c-strong); }
+  .lsci__p { margin-top: 10px; font-size: 16px; line-height: 1.6; }
+  .lsci__scale { margin: 24px 0 24px; }
+  .lsci__link { margin-top: auto; }
+  .lsci__source { margin-top: 24px; font-size: 13px; line-height: 1.6; color: var(--c-muted); }
+
+  @media (min-width: 1024px) {
+    .lsci__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 48px; }
+    .lsci__card { padding: 40px; }
+  }
+</style>

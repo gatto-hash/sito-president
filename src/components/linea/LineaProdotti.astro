@@ -1,0 +1,141 @@
+---
+/**
+ * I prodotti della linea (id="prodotti"). Griglia su desktop, carosello con scroll-snap su mobile.
+ * BABY-CHILDREN: card raggruppate per fascia d'età, con badge età e gusti.
+ */
+import ProductCard from '../ProductCard.astro';
+import BadgeRda from '../badge/BadgeRda.astro';
+import BadgeMils from '../badge/BadgeMils.astro';
+import BadgeFluoro from '../badge/BadgeFluoro.astro';
+import type { Linea } from '../../data/linee';
+import { fasceEta, type Prodotto } from '../../data/prodotti';
+
+interface Props {
+  linea: Linea;
+  prodotti: Prodotto[];
+}
+const { linea, prodotti } = Astro.props;
+const n = prodotti.length;
+const colonne = n === 5 ? 5 : n % 3 === 0 ? 3 : 4;
+const perFascia = prodotti.some((p) => p.fascia);
+const gruppi = perFascia
+  ? fasceEta
+      .map((f) => ({ fascia: f, prodotti: prodotti.filter((p) => p.fascia === f.id) }))
+      .filter((g) => g.prodotti.length)
+  : [];
+---
+<section
+  id="prodotti"
+  class="lprod"
+  aria-labelledby="prodotti-t"
+  style={`--cols:${colonne};--lp-color:${linea.colore};--lp-fg:${linea.testoSuColore};--lp-text:${linea.testoSuBianco}`}
+>
+  <div class="container">
+    <div class="lprod__head">
+      <h2 class="lprod__title" id="prodotti-t">I PRODOTTI <b>{linea.nome}</b></h2>
+      <span class="lprod__count">{n} {n === 1 ? 'prodotto' : 'prodotti'}</span>
+    </div>
+
+    <p role="note" class="lprod__note">
+      <span><BadgeRda size="mini" /><span><b>RDA</b> = abrasività dichiarata: più è bassa, più il dentifricio è delicato.</span></span>
+      <span><BadgeMils size="mini" /><span><b>MILS</b> = diametro delle setole: meno MILS significa setole più morbide.</span></span>
+    </p>
+
+    {perFascia ? (
+      <div class="lprod__groups">
+        {gruppi.map((g) => (
+          <section class="lprod__group" aria-labelledby={`fascia-${g.fascia.nome.toLowerCase()}`}>
+            <div class="lprod__age">
+              <span class="lprod__age-pill" aria-hidden="true">{g.fascia.id}</span>
+              <h3 class="lprod__age-name" id={`fascia-${g.fascia.nome.toLowerCase()}`}>
+                {g.fascia.nome}<span class="sr-only">, {g.fascia.id} anni</span>
+              </h3>
+              {g.fascia.fluoroPpm ? <BadgeFluoro ppm={g.fascia.fluoroPpm} /> : <span class="lprod__age-note">{g.fascia.nota}</span>}
+            </div>
+            <ul role="list" class="lprod__list lprod__list--group">
+              {g.prodotti.map((p) => <li><ProductCard prodotto={p} linea={linea} /></li>)}
+            </ul>
+          </section>
+        ))}
+      </div>
+    ) : (
+      <ul role="list" class="lprod__list">
+        {prodotti.map((p) => <li><ProductCard prodotto={p} linea={linea} /></li>)}
+      </ul>
+    )}
+  </div>
+</section>
+
+<style>
+  .lprod { padding: var(--section-pad) 0; scroll-margin-top: var(--header-h); }
+  .lprod__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
+  .lprod__title { font-size: var(--fs-h2); font-weight: var(--fw-light); letter-spacing: var(--ls-title); line-height: 1.2; color: var(--c-strong); }
+  .lprod__title b { color: var(--lp-text); }
+  .lprod__count { padding-bottom: 8px; font-size: 15px; color: var(--c-muted); }
+
+  .lprod__note {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px 40px;
+    margin-top: 24px;
+    padding: 18px 20px;
+    background: #FFFFFF;
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+  }
+  .lprod__note > span { display: flex; align-items: center; gap: 12px; font-size: 15px; line-height: 1.45; color: var(--c-text); }
+  .lprod__note b { color: var(--c-strong); }
+
+  /* Mobile: carosello orizzontale con scroll-snap, bordo della card successiva visibile */
+  .lprod__list {
+    display: flex;
+    gap: 16px;
+    margin: 32px calc(-1 * var(--page-gutter)) 0;
+    padding: 4px var(--page-gutter) 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-gutter);
+    overscroll-behavior-x: contain;
+  }
+  .lprod__list > li { display: flex; flex: 0 0 78%; max-width: 280px; scroll-snap-align: start; }
+
+  .lprod__groups { display: flex; flex-direction: column; gap: 40px; margin-top: 40px; }
+  .lprod__group { display: flex; flex-direction: column; gap: 4px; }
+  .lprod__list--group { margin-top: 12px; }
+  .lprod__age { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .lprod__age-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    min-width: 76px;
+    padding: 0 20px;
+    border-radius: var(--radius-pill);
+    background: var(--lp-color);
+    color: var(--lp-fg);
+    font-size: 26px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .01em;
+  }
+  .lprod__age-name { font-size: 20px; font-weight: var(--fw-bold); letter-spacing: .04em; color: var(--lp-text); }
+  .lprod__age-note { font-size: 13px; font-weight: var(--fw-medium); color: var(--c-muted); }
+
+  @media (min-width: 768px) {
+    .lprod__note { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 18px 24px; }
+  }
+
+  @media (min-width: 1024px) {
+    .lprod__list {
+      display: grid;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      gap: 24px;
+      margin: 32px 0 0;
+      padding: 0;
+      overflow: visible;
+    }
+    .lprod__list > li { max-width: none; }
+    .lprod__group { flex-direction: row; align-items: stretch; gap: 24px; }
+    .lprod__age { flex: 0 0 150px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 12px; padding: 0 8px; }
+    .lprod__list--group { flex: 1; margin-top: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
