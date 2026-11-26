@@ -1,0 +1,382 @@
+---
+/**
+ * Header globale: logo, menu principale con i due menu a tendina (pattern disclosure),
+ * selettore lingua. Sotto 1024px: pulsante testuale MENU/CHIUDI con menu a schermo intero.
+ */
+import Icon from './Icon.astro';
+import { linee } from '../data/linee';
+import { rotte, vociRicerca, type SezioneId } from '../data/rotte';
+
+interface Props {
+  sezione?: SezioneId;
+  lineaCorrente?: string;
+}
+const { sezione, lineaCorrente } = Astro.props;
+const path = Astro.url.pathname;
+
+/** aria-current: "page" se è la pagina stessa, "true" se è una sua sottopagina. */
+const current = (href: string, id?: SezioneId) =>
+  path === href ? 'page' : id && sezione === id ? 'true' : undefined;
+
+const linkSemplici = {
+  home: { label: 'HOME', href: rotte.home, id: 'home' as const },
+  chiSiamo: { label: 'CHI SIAMO', href: rotte.chiSiamo, id: 'chi-siamo' as const },
+  contatti: { label: 'CONTATTI', href: rotte.contatti, id: 'contatti' as const },
+};
+
+const vociGamma = linee.map((l) => {
+  const href = rotte.linea(l.id);
+  return {
+    ...l,
+    href,
+    current: path === href ? 'page' : lineaCorrente === l.id ? 'true' : undefined,
+  };
+});
+const gammaCurrent = sezione === 'la-gamma' ? 'true' : undefined;
+const ricercaCurrent = sezione === 'ricerca' ? 'true' : undefined;
+---
+<header class="site-header" data-header>
+  <div class="container site-header__bar">
+    <a class="site-header__logo" href={rotte.home} aria-label="PRESIDENT, torna alla Home">
+      <img src="/assets/img/logo-nero.svg" alt="" width="199" height="40" />
+    </a>
+
+    <!-- Desktop -->
+    <nav class="nav-desktop" aria-label="Menu principale">
+      <ul role="list" class="nav-desktop__list">
+        <li>
+          <a class="nav-item" href={linkSemplici.home.href} aria-current={current(linkSemplici.home.href, 'home')}>{linkSemplici.home.label}</a>
+        </li>
+        <li>
+          <a class="nav-item" href={linkSemplici.chiSiamo.href} aria-current={current(linkSemplici.chiSiamo.href, 'chi-siamo')}>{linkSemplici.chiSiamo.label}</a>
+        </li>
+        <li class="dd" data-dropdown>
+          <button type="button" class="nav-item dd__button" aria-expanded="false" aria-controls="menu-gamma" aria-current={gammaCurrent} data-dd-button>
+            LA GAMMA <Icon name="chevron-down" size={14} strokeWidth={2.2} class="dd__chevron" />
+          </button>
+          <div id="menu-gamma" class="dd__panel dd__panel--gamma" hidden data-dd-panel>
+            <p class="dd__eyebrow" id="menu-gamma-titolo">LE 9 LINEE PRESIDENT</p>
+            <ul role="list" class="dd__grid" aria-labelledby="menu-gamma-titolo">
+              {vociGamma.map((l) => (
+                <li>
+                  <a class="dd__line" href={l.href} aria-current={l.current}>
+                    <span class="dd__swatch" aria-hidden="true" style={`background:${l.colore}`}></span>
+                    <span class="dd__line-text">
+                      <span class="dd__line-name">{l.nome}</span>
+                      <span class="dd__line-need">{l.esigenza}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div class="dd__footer">
+              <a class="dd__all" href={rotte.gamma} aria-current={path === rotte.gamma ? 'page' : undefined}>
+                Vedi tutta la gamma <Icon name="arrow-right" size={16} />
+              </a>
+            </div>
+          </div>
+        </li>
+        <li class="dd" data-dropdown>
+          <button type="button" class="nav-item dd__button" aria-expanded="false" aria-controls="menu-ricerca" aria-current={ricercaCurrent} data-dd-button>
+            RICERCA <Icon name="chevron-down" size={14} strokeWidth={2.2} class="dd__chevron" />
+          </button>
+          <div id="menu-ricerca" class="dd__panel dd__panel--ricerca" hidden data-dd-panel>
+            <ul role="list" class="dd__list">
+              {vociRicerca.map((v) => (
+                <li>
+                  <a class="dd__item" href={v.href} aria-current={path === v.href ? 'page' : undefined}>
+                    <span class="dd__item-title">{v.titolo}</span>
+                    <span class="dd__item-desc">{v.descrizione}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+        <li>
+          <a class="nav-item" href={linkSemplici.contatti.href} aria-current={current(linkSemplici.contatti.href, 'contatti')}>{linkSemplici.contatti.label}</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="lang lang--desktop" role="group" aria-label="Lingua del sito">
+      <button type="button" lang="it" aria-pressed="true" data-lang="it">IT</button>
+      <button type="button" lang="en" aria-pressed="false" data-lang="en">EN</button>
+    </div>
+
+    <!-- Mobile -->
+    <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="menu-mobile" data-menu-toggle>
+      <span data-menu-label>MENU</span>
+    </button>
+  </div>
+
+  <div id="menu-mobile" class="mobile-menu" hidden data-mobile-menu>
+    <nav class="container" aria-label="Menu principale">
+      <ul role="list" class="mm__list">
+        <li><a class="mm__link" href={linkSemplici.home.href} aria-current={current(linkSemplici.home.href, 'home')}>Home</a></li>
+        <li><a class="mm__link" href={linkSemplici.chiSiamo.href} aria-current={current(linkSemplici.chiSiamo.href, 'chi-siamo')}>Chi siamo</a></li>
+        <li>
+          <button type="button" class="mm__link mm__toggle" aria-expanded="false" aria-controls="mm-gamma" aria-current={gammaCurrent} data-mm-toggle>
+            La gamma <Icon name="chevron-down" size={18} strokeWidth={2.2} class="dd__chevron" />
+          </button>
+          <div id="mm-gamma" class="mm__sub" hidden>
+            <ul role="list">
+              {vociGamma.map((l) => (
+                <li>
+                  <a class="dd__line" href={l.href} aria-current={l.current}>
+                    <span class="dd__swatch" aria-hidden="true" style={`background:${l.colore}`}></span>
+                    <span class="dd__line-text">
+                      <span class="dd__line-name">{l.nome}</span>
+                      <span class="dd__line-need">{l.esigenza}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a class="dd__all" href={rotte.gamma} aria-current={path === rotte.gamma ? 'page' : undefined}>
+                  Vedi tutta la gamma <Icon name="arrow-right" size={16} />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <button type="button" class="mm__link mm__toggle" aria-expanded="false" aria-controls="mm-ricerca" aria-current={ricercaCurrent} data-mm-toggle>
+            Ricerca <Icon name="chevron-down" size={18} strokeWidth={2.2} class="dd__chevron" />
+          </button>
+          <div id="mm-ricerca" class="mm__sub" hidden>
+            <ul role="list">
+              {vociRicerca.map((v) => (
+                <li>
+                  <a class="dd__item" href={v.href} aria-current={path === v.href ? 'page' : undefined}>
+                    <span class="dd__item-title">{v.titolo}</span>
+                    <span class="dd__item-desc">{v.descrizione}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+        <li><a class="mm__link" href={linkSemplici.contatti.href} aria-current={current(linkSemplici.contatti.href, 'contatti')}>Contatti</a></li>
+      </ul>
+      <div class="lang lang--mobile" role="group" aria-label="Lingua del sito">
+        <button type="button" lang="it" aria-pressed="true" data-lang="it">IT</button>
+        <button type="button" lang="en" aria-pressed="false" data-lang="en">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import { initHeader } from '../scripts/header';
+  initHeader();
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .site-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-h);
+  }
+  .site-header__logo { display: flex; align-items: center; min-height: 44px; }
+  .site-header__logo img { height: 32px; width: auto; }
+
+  /* ---------- Desktop nav ---------- */
+  .nav-desktop { display: none; }
+
+  .nav-desktop__list { display: flex; align-items: center; gap: 4px; margin: 0; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: var(--header-h);
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    font-size: var(--fs-nav);
+    font-weight: var(--fw-medium);
+    letter-spacing: var(--ls-nav);
+    line-height: 1;
+    color: var(--c-text);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--c-strong); }
+  .nav-item[aria-current] {
+    color: var(--c-strong);
+    font-weight: var(--fw-bold);
+    box-shadow: inset 0 -3px 0 var(--c-link);
+  }
+  .nav-item:focus-visible { outline-offset: -3px; }
+
+  :global(.dd__chevron) { flex: none; transition: transform var(--transition); }
+  [aria-expanded='true'] > :global(.dd__chevron) { transform: rotate(180deg); }
+
+  .dd { position: relative; }
+  .dd__panel {
+    position: absolute;
+    top: calc(var(--header-h) - 8px);
+    left: -8px;
+    background: #FFFFFF;
+    border: 1px solid var(--c-border);
+    border-top: 3px solid var(--c-acqua);
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--shadow-panel);
+  }
+  .dd__panel--gamma { width: 600px; padding: 16px 12px 12px; }
+  .dd__panel--ricerca { width: 340px; padding: 8px; }
+
+  .dd__eyebrow {
+    margin: 0 0 8px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .14em;
+    line-height: 20px;
+    color: var(--c-muted);
+  }
+  .dd__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 8px;
+    margin: 0;
+  }
+  .dd__line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--c-strong);
+    transition: background-color .15s ease;
+  }
+  .dd__line:hover, .dd__item:hover, .dd__all:hover { background: var(--c-bg-grey); }
+  .dd__line[aria-current], .dd__item[aria-current], .dd__all[aria-current] { background: var(--c-menu-current); }
+  .dd__swatch { flex: none; width: 14px; height: 38px; border-radius: 3px; }
+  .dd__line-text { display: flex; flex-direction: column; gap: 2px; }
+  .dd__line-name { font-size: 15px; font-weight: var(--fw-bold); letter-spacing: .04em; line-height: 1.25; }
+  .dd__line-need { font-size: 13px; line-height: 1.35; color: var(--c-muted); }
+
+  .dd__footer { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--c-border); }
+  .dd__all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: var(--fw-bold);
+    color: var(--c-link);
+    text-decoration: none;
+  }
+  .dd__all:hover { color: var(--c-link); }
+
+  .dd__list { display: flex; flex-direction: column; margin: 0; }
+  .dd__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--c-strong);
+  }
+  .dd__item:hover { color: var(--c-strong); }
+  .dd__item-title { font-size: 16px; font-weight: var(--fw-bold); }
+  .dd__item-desc { font-size: 14px; color: var(--c-muted); }
+
+  /* ---------- Selettore lingua ---------- */
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-pill);
+  }
+  .lang button {
+    height: 36px;
+    min-width: 44px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--c-text);
+    font-size: 13px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .06em;
+    cursor: pointer;
+  }
+  .lang button[aria-pressed='true'] { background: var(--c-strong); color: #FFFFFF; }
+  .lang--desktop { display: none; }
+
+  /* ---------- Mobile ---------- */
+  .menu-toggle {
+    min-height: 44px;
+    min-width: 88px;
+    padding: 0 18px;
+    border: 1.5px solid var(--c-strong);
+    border-radius: var(--radius-pill);
+    background: #FFFFFF;
+    color: var(--c-strong);
+    font-size: 14px;
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-nav);
+    cursor: pointer;
+  }
+  .menu-toggle[aria-expanded='true'] { background: var(--c-strong); color: #FFFFFF; }
+
+  .mobile-menu {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    z-index: 39;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #FFFFFF;
+    padding: 8px 0 40px;
+  }
+  .mobile-menu[hidden] { display: none; }
+  .mm__list { margin: 0 0 24px; }
+  .mm__list > li { border-bottom: 1px solid var(--c-border); }
+  .mm__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 60px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    font-weight: var(--fw-medium);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--c-strong);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .mm__link[aria-current] { font-weight: var(--fw-bold); box-shadow: inset 3px 0 0 var(--c-link); padding-left: 14px; }
+  .mm__sub { padding: 0 0 12px; }
+  .mm__sub ul { margin: 0; }
+  .lang--mobile { width: max-content; }
+
+  @media (min-width: 1024px) {
+    .site-header__logo img { height: 40px; }
+    .nav-desktop { display: block; }
+    .lang--desktop { display: flex; }
+    .menu-toggle, .mobile-menu { display: none; }
+  }
+</style>
