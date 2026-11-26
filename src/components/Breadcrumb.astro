@@ -1,0 +1,61 @@
+---
+/**
+ * Breadcrumb globale. L'ultima voce è la pagina corrente (aria-current="page").
+ * `colore`: quadratino 10×10 davanti alla voce di una linea.
+ */
+export interface VoceBreadcrumb {
+  label: string;
+  href?: string;
+  colore?: string;
+}
+interface Props {
+  voci: VoceBreadcrumb[];
+}
+const { voci } = Astro.props;
+---
+<div class="breadcrumb">
+  <nav class="container" aria-label="Percorso">
+    <ol role="list" class="breadcrumb__list">
+      {voci.map((v, i) => {
+        const corrente = i === voci.length - 1;
+        return (
+          <li class="breadcrumb__item">
+            {v.colore && <span class="breadcrumb__swatch" aria-hidden="true" style={`background:${v.colore}`}></span>}
+            {corrente ? (
+              <span class="breadcrumb__current" aria-current="page">{v.label}</span>
+            ) : (
+              <a class="breadcrumb__link" href={v.href}>{v.label}</a>
+            )}
+            {!corrente && <span class="breadcrumb__sep" aria-hidden="true">›</span>}
+          </li>
+        );
+      })}
+    </ol>
+  </nav>
+</div>
+
+<style>
+  .breadcrumb { border-bottom: 1px solid var(--c-border); }
+  .breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 8px;
+    min-height: 56px;
+    margin: 0;
+    font-size: 14px;
+  }
+  .breadcrumb__item { display: flex; align-items: center; gap: 8px; }
+  .breadcrumb__swatch { flex: none; width: 10px; height: 10px; }
+  .breadcrumb__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--c-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .breadcrumb__link:hover { color: var(--c-strong); }
+  .breadcrumb__sep { color: var(--c-muted); }
+  .breadcrumb__current { color: var(--c-strong); font-weight: var(--fw-bold); }
+</style>

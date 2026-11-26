@@ -1,13 +1,15 @@
 /**
  * Le 9 linee PRESIDENT, nell'ordine fisso dell'alberatura.
- * Fonte: president-handoff/FONDAMENTA.md · Dati.
- * Usato da: menu LA GAMMA, striscia colorata del footer, card Novità,
- * tessere e navigatore della pagina La gamma, pagine di linea.
- *
- * I testi estesi (titolo, descrizione, benefici, attivi) sono nei blocchi
- * `t-<linea>` di riferimenti/02-la-gamma.html e vanno aggiunti nei campi
- * opzionali qui sotto quando si costruisce la pagina La gamma.
+ * Fonti: president-handoff/FONDAMENTA.md · Dati (colori, claim, foto) e
+ * blocchi t-<linea> di riferimenti/02-la-gamma.html (titolo, descrizione, benefici, attivi).
+ * Usato da: menu LA GAMMA, striscia del footer, card Novità, tessere La gamma, pagine di linea.
+ * I prodotti sono in ./prodotti.ts (prodottiDellaLinea(id)).
  */
+export interface Attivo {
+  nome: string;
+  funzione: string;
+}
+
 export interface Linea {
   id: string;
   nome: string;
@@ -20,39 +22,191 @@ export interface Linea {
   testoSuBianco: string;
   tintaChiara: string;
   tintaMedia: string;
+  /** true se sul colore della linea il testo è scuro (#1D1D1B). */
+  chiara: boolean;
   /** Claim breve delle tessere. */
   claim: string;
-  /** Posizione verticale della foto still, in % (object-position: 50% Y%). */
-  stillY: number;
   /** Foto still: /assets/img/<id>-still.jpg */
   still: string;
+  /** Posizione verticale della foto still, in % (object-position: 50% Y%). */
+  stillY: number;
   /** Foto lifestyle: /assets/img/<id>-life.jpg */
   life: string;
-  /** Testi estesi (da riferimenti/02-la-gamma.html, blocchi t-<linea>). */
-  titolo?: string;
-  descrizione?: string;
-  benefici?: string[];
-  attivi?: { nome: string; descrizione: string }[];
+  /** Posizione verticale della foto lifestyle, in %. */
+  lifeY: number;
+  /** Titolo della linea. */
+  titolo: string;
+  /** Descrizione: HTML con <b> per le parole in grassetto. */
+  descrizione: string;
+  benefici: string[];
+  /** Attivi selezionati (vuoto se la linea non li dichiara, es. DENTURE). */
+  attivi: Attivo[];
 }
 
-type LineaBase = Omit<Linea, 'still' | 'life'>;
+type LineaBase = Omit<Linea, 'still' | 'life' | 'lifeY' | 'chiara'>;
 
 const base: LineaBase[] = [
-  { id: 'classic', nome: 'CLASSIC', esigenza: 'Protezione quotidiana', colore: '#00603E', testoSuColore: '#FFFFFF', testoSuBianco: '#00603E', tintaChiara: '#E6EFEC', tintaMedia: '#B8D2C9', claim: 'Protezione quotidiana per un sorriso sano', stillY: 50 },
-  { id: 'white', nome: 'WHITE', esigenza: 'Denti macchiati o ingialliti', colore: '#B1B1AE', testoSuColore: '#1D1D1B', testoSuBianco: '#757573', tintaChiara: '#F7F7F7', tintaMedia: '#E9E9E8', claim: 'Sbiancamento delicato, lucentezza naturale', stillY: 38 },
-  { id: 'active', nome: 'ACTIVE', esigenza: 'Gengive che sanguinano', colore: '#AA0C38', testoSuColore: '#FFFFFF', testoSuBianco: '#AA0C38', tintaChiara: '#F6E7EB', tintaMedia: '#E7BBC7', claim: 'Azione astringente e lenitiva, per gengive più sane', stillY: 42 },
-  { id: 'sensitive', nome: 'SENSITIVE', esigenza: 'Denti sensibili', colore: '#004B8D', testoSuColore: '#FFFFFF', testoSuBianco: '#004B8D', tintaChiara: '#E6EDF4', tintaMedia: '#B8CDDF', claim: 'Per contrastare la sensibilità dentinale', stillY: 65 },
-  { id: 'profi', nome: 'PROFI', esigenza: 'Dopo interventi e gengive infiammate', colore: '#642271', testoSuColore: '#FFFFFF', testoSuBianco: '#642271', tintaChiara: '#F0E9F1', tintaMedia: '#D4C1D7', claim: 'Azione antibatterica intensiva con clorexidina', stillY: 42 },
-  { id: 'defense', nome: 'DEFENSE', esigenza: 'Alito cattivo e placca', colore: '#EB690B', testoSuColore: '#1D1D1B', testoSuBianco: '#BE5509', tintaChiara: '#FDF0E7', tintaMedia: '#F9D5BB', claim: 'Azione antiplacca e anti-alitosi', stillY: 38 },
-  { id: 'ortho', nome: 'ORTHO-IMPLANT', esigenza: 'Apparecchi e impianti', colore: '#00A6A5', testoSuColore: '#1D1D1B', testoSuBianco: '#008181', tintaChiara: '#E6F6F6', tintaMedia: '#B8E6E6', claim: 'Per portatori di apparecchi ortodontici e impianti dentali', stillY: 50 },
-  { id: 'baby', nome: 'BABY-CHILDREN', esigenza: 'Bambini da 0 a 12+ anni', colore: '#EAA300', testoSuColore: '#1D1D1B', testoSuBianco: '#9A6C00', tintaChiara: '#FDF6E6', tintaMedia: '#F9E5B8', claim: 'Azione delicata e sicura per i denti dei bambini da 0 a 12+ anni', stillY: 42 },
-  { id: 'denture', nome: 'DENTURE', esigenza: 'Protesi dentarie', colore: '#77BE91', testoSuColore: '#1D1D1B', testoSuBianco: '#507F61', tintaChiara: '#F1F8F4', tintaMedia: '#D9EDE0', claim: 'Stabilità e comfort per chi porta protesi dentarie', stillY: 61 },
+  {
+    id: 'classic', nome: 'CLASSIC', esigenza: 'Protezione quotidiana',
+    colore: '#00603E', testoSuColore: '#FFFFFF', testoSuBianco: '#00603E', tintaChiara: '#E6EFEC', tintaMedia: '#B8D2C9',
+    claim: 'Protezione quotidiana per un sorriso sano', stillY: 50,
+    titolo: 'Protezione quotidiana per un sorriso sano',
+    descrizione: 'Anche quando denti e gengive sono in buone condizioni, una <b>corretta igiene orale</b> è fondamentale per prevenire placca, carie, alito cattivo e irritazione gengivale. La linea comprende <b>dentifrici, collutori, spazzolini e prodotti interdentali</b> adatti a tutta la famiglia adulta.',
+    benefici: [
+      'Contrastare placca e carie',
+      'Garantire una freschezza duratura',
+      'Assicurare una pulizia profonda senza essere aggressivi',
+    ],
+    attivi: [
+      { nome: 'Fluoruro di Sodio', funzione: 'rinforza lo smalto e aiuta a prevenire le carie' },
+      { nome: 'Xilitolo', funzione: 'bilancia il pH orale e riduce la proliferazione batterica' },
+      { nome: 'Salvia, Camomilla e Melissa', funzione: 'rinfrescano e leniscono i tessuti orali' },
+    ],
+  },
+  {
+    id: 'white', nome: 'WHITE', esigenza: 'Denti macchiati o ingialliti',
+    colore: '#B1B1AE', testoSuColore: '#1D1D1B', testoSuBianco: '#757573', tintaChiara: '#F7F7F7', tintaMedia: '#E9E9E8',
+    claim: 'Sbiancamento delicato, lucentezza naturale', stillY: 38,
+    titolo: 'Sbiancamento delicato, lucentezza naturale',
+    descrizione: 'Alimentazione, fumo, caffè, tè e vino possono macchiare e ingiallire lo smalto. La linea <b>restituisce luminosità al sorriso senza compromettere la salute dello smalto</b> ed è ideale per l’uso quotidiano.',
+    benefici: [
+      'Rimuovere macchie e imbrunimenti superficiali',
+      'Prevenire la formazione di tartaro e placca',
+      'Restituire lucentezza e freschezza duratura',
+      'Rispettare e proteggere lo smalto',
+    ],
+    attivi: [
+      { nome: 'Cloruro di Zinco', funzione: 'contrasta il tartaro e il sanguinamento gengivale' },
+      { nome: 'Monofluorofosfato di Sodio', funzione: 'azione anticarie quotidiana' },
+      { nome: 'Lichene Islandico e Usnea', funzione: 'proprietà antibatteriche e purificanti' },
+      { nome: 'Fosfato Bicalcico e Terra di Diatomee', funzione: 'pulizia delicata e azione lucidante' },
+    ],
+  },
+  {
+    id: 'active', nome: 'ACTIVE', esigenza: 'Gengive che sanguinano',
+    colore: '#AA0C38', testoSuColore: '#FFFFFF', testoSuBianco: '#AA0C38', tintaChiara: '#F6E7EB', tintaMedia: '#E7BBC7',
+    claim: 'Azione astringente e lenitiva, per gengive più sane', stillY: 42,
+    titolo: 'Azione astringente e lenitiva per gengive più sane',
+    descrizione: 'Infiammazione e sanguinamento gengivale sono sintomi frequenti che, se trascurati, possono aggravarsi. La linea è <b>formulata specificamente per le gengive sensibili e infiammate</b>, per trattare questi disturbi fin dall’inizio.',
+    benefici: [
+      'Ridurre sanguinamento e infiammazione gengivale',
+      'Rinforzare la barriera naturale del tessuto gengivale',
+      'Svolgere un’azione astringente e antibatterica',
+      'Prevenire la formazione di placca e tartaro',
+    ],
+    attivi: [
+      { nome: 'Citrato di Zinco', funzione: 'aiuta a prevenire la formazione di tartaro' },
+      { nome: 'Digluconato di Clorexidina', funzione: 'controlla placca e infiammazione' },
+      { nome: 'Esetidina e Lattato di Zinco', funzione: 'azione antimicrobica ad ampio spettro' },
+      { nome: 'Biancospino e Quercia', funzione: 'effetto astringente e lenitivo naturale' },
+    ],
+  },
+  {
+    id: 'sensitive', nome: 'SENSITIVE', esigenza: 'Denti sensibili',
+    colore: '#004B8D', testoSuColore: '#FFFFFF', testoSuBianco: '#004B8D', tintaChiara: '#E6EDF4', tintaMedia: '#B8CDDF',
+    claim: 'Per contrastare la sensibilità dentinale', stillY: 65,
+    titolo: 'Azione protettiva per denti sensibili e gengive in recessione',
+    descrizione: 'La sensibilità dentinale è il fastidio che si avverte quando caldo, freddo, dolce o acido raggiungono la dentina esposta. La linea offre <b>soluzioni efficaci, delicate e ben tollerate</b> anche dai tessuti più vulnerabili.',
+    benefici: [
+      'Ridurre la sensibilità agli stimoli esterni',
+      'Rinforzare lo smalto e proteggere le gengive',
+      'Assicurare una pulizia efficace e delicata',
+    ],
+    attivi: [
+      { nome: 'Nitrato di Potassio', funzione: 'interrompe la trasmissione del segnale doloroso' },
+      { nome: 'Idrossiapatite', funzione: 'favorisce la remineralizzazione dello smalto' },
+      { nome: 'Bisabololo e Tiglio', funzione: 'leniscono le irritazioni dei tessuti orali' },
+      { nome: 'Fluoruro di Sodio', funzione: 'rinforza lo smalto e aiuta a prevenire la carie' },
+    ],
+  },
+  {
+    id: 'profi', nome: 'PROFI', esigenza: 'Dopo interventi e gengive infiammate',
+    colore: '#642271', testoSuColore: '#FFFFFF', testoSuBianco: '#642271', tintaChiara: '#F0E9F1', tintaMedia: '#D4C1D7',
+    claim: 'Azione antibatterica intensiva con clorexidina', stillY: 42,
+    titolo: 'Azione antibatterica intensiva con clorexidina',
+    descrizione: 'Dopo un intervento odontoiatrico o nelle fasi acute delle malattie gengivali la mucosa orale diventa più fragile. La linea offre <b>trattamenti intensivi</b> per controllare l’infezione e accompagnare il recupero dei tessuti.',
+    benefici: [
+      'Controllare la proliferazione batterica',
+      'Ridurre l’infiammazione e prevenire le infezioni secondarie',
+      'Favorire la guarigione e il recupero dei tessuti',
+    ],
+    attivi: [
+      { nome: 'Clorexidina Digluconato 0,20%', funzione: 'azione sanitizzante a effetto urto' },
+      { nome: 'Malva e Camomilla', funzione: 'azione lenitiva' },
+    ],
+  },
+  {
+    id: 'defense', nome: 'DEFENSE', esigenza: 'Alito cattivo e placca',
+    colore: '#EB690B', testoSuColore: '#1D1D1B', testoSuBianco: '#BE5509', tintaChiara: '#FDF0E7', tintaMedia: '#F9D5BB',
+    claim: 'Azione antiplacca e anti-alitosi', stillY: 38,
+    titolo: 'Azione antiplacca e anti-alitosi',
+    descrizione: 'L’alito cattivo è spesso il segnale di un accumulo di placca batterica. Formulata con Esetidina e una <b>base emulsionata brevettata</b>, la linea è pensata anche come mantenimento dopo le terapie alla Clorexidina.',
+    benefici: [
+      'Ridurre la proliferazione batterica',
+      'Lenire e proteggere i tessuti gengivali',
+      'Aiutare a prevenire malattia parodontale, stomatite e alitosi',
+    ],
+    attivi: [
+      { nome: 'Esetidina', funzione: 'azione antiplacca e sanitizzante' },
+      { nome: 'Cloruro di Cetilpiridinio', funzione: 'azione antiplacca e anti-alitosi' },
+      { nome: 'Propoli e Timo', funzione: 'estratti sanitizzanti naturali' },
+    ],
+  },
+  {
+    id: 'ortho', nome: 'ORTHO-IMPLANT', esigenza: 'Apparecchi e impianti',
+    colore: '#00A6A5', testoSuColore: '#1D1D1B', testoSuBianco: '#008181', tintaChiara: '#E6F6F6', tintaMedia: '#B8E6E6',
+    claim: 'Per portatori di apparecchi ortodontici e impianti dentali', stillY: 50,
+    titolo: 'Azione protettiva per apparecchi ortodontici e impianti dentali',
+    descrizione: 'Brackets, fili metallici e impianti creano zone difficili da raggiungere, dove placca e batteri si accumulano. La linea <b>pulisce in profondità anche nei punti più difficili</b> senza risultare abrasiva né danneggiare le zone delicate.',
+    benefici: [
+      'Contrastare l’accumulo di placca',
+      'Ridurre il rischio di infiammazione gengivale',
+      'Proteggere denti e gengive senza intaccare smalto e impianti',
+    ],
+    attivi: [
+      { nome: 'Papaina', funzione: 'enzima ad azione antiplacca e igienizzante' },
+      { nome: 'Cloruro di Cetilpiridinio', funzione: 'antibatterico ad ampio spettro, riduce la placca' },
+    ],
+  },
+  {
+    id: 'baby', nome: 'BABY-CHILDREN', esigenza: 'Bambini da 0 a 12+ anni',
+    colore: '#EAA300', testoSuColore: '#1D1D1B', testoSuBianco: '#9A6C00', tintaChiara: '#FDF6E6', tintaMedia: '#F9E5B8',
+    claim: 'Azione delicata e sicura per i denti dei bambini da 0 a 12+ anni', stillY: 42,
+    titolo: 'Azione delicata e sicura per i denti dei bambini da 0 a 12+ anni',
+    descrizione: 'Ogni fase della crescita porta esigenze diverse. Una linea completa per l’igiene orale dei bambini <b>dall’infanzia alla preadolescenza</b>, con gusti piacevoli e <b>fluoro dosato in base all’età</b>.',
+    benefici: [
+      'Proteggere i denti dalla carie con fluoro dosato in base all’età',
+      'Favorire uno sviluppo orale sano fin dai primi dentini',
+      'Rendere l’igiene quotidiana facile e piacevole',
+    ],
+    attivi: [
+      { nome: 'Fluoro', funzione: 'rinforza lo smalto e previene la carie' },
+      { nome: 'Xilitolo', funzione: 'bilancia il pH e riduce il rischio di carie' },
+      { nome: 'Propoli', funzione: 'azione purificante naturale' },
+      { nome: 'Malva e Camomilla', funzione: 'leniscono le gengive sensibili' },
+    ],
+  },
+  {
+    id: 'denture', nome: 'DENTURE', esigenza: 'Protesi dentarie',
+    colore: '#77BE91', testoSuColore: '#1D1D1B', testoSuBianco: '#507F61', tintaChiara: '#F1F8F4', tintaMedia: '#D9EDE0',
+    claim: 'Stabilità e comfort per chi porta protesi dentarie', stillY: 61,
+    titolo: 'Stabilità e comfort per chi porta protesi dentarie',
+    descrizione: 'Scarsa adesione, infiltrazioni di cibo, alito cattivo e irritazioni sono i disagi più comuni di chi porta protesi. La linea garantisce <b>un’adesione rapida e sicura</b> e stabilità per tutto il giorno.',
+    benefici: [
+      'Tenuta forte e prolungata, ben tollerata dalle gengive',
+      'Previene irritazioni e fastidi legati alla fermentazione',
+      'Facile da usare e affidabile ogni giorno',
+    ],
+    attivi: [],
+  },
 ];
 
 export const linee: Linea[] = base.map((l) => ({
   ...l,
+  chiara: l.testoSuColore !== '#FFFFFF',
   still: `/assets/img/${l.id}-still.jpg`,
   life: `/assets/img/${l.id}-life.jpg`,
+  lifeY: 30,
 }));
 
 export const getLinea = (id: string) => linee.find((l) => l.id === id);

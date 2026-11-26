@@ -32,7 +32,7 @@ const vociGamma = linee.map((l) => {
     current: path === href ? 'page' : lineaCorrente === l.id ? 'true' : undefined,
   };
 });
-const gammaCurrent = sezione === 'la-gamma' ? 'true' : undefined;
+const gammaCurrent = path === rotte.gamma ? 'page' : sezione === 'la-gamma' ? 'true' : undefined;
 const ricercaCurrent = sezione === 'ricerca' ? 'true' : undefined;
 ---
 <header class="site-header" data-header>
