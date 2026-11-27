@@ -1,0 +1,110 @@
+---
+/**
+ * Informazioni tecniche: accordion (una voce aperta alla volta, la prima aperta di default;
+ * cliccando la voce aperta si chiude). Senza JavaScript tutte le voci restano leggibili.
+ */
+import type { Prodotto } from '../../data/prodotti';
+
+interface Props {
+  prodotto: Prodotto;
+}
+const { prodotto: p } = Astro.props;
+
+const voci = [
+  p.inci && { titolo: 'Ingredienti (INCI)', testo: p.inci },
+  p.fluoroPpm !== undefined && {
+    titolo: 'Contenuto di fluoro',
+    testo: [p.fluoroSale, `${p.fluoroPpm} ppm F⁻`].filter(Boolean).join(' · '),
+  },
+  p.codice && { titolo: 'Codice prodotto', testo: `Cod. ${p.codice}` },
+  // Punto aperto: EAN da listino.
+  { titolo: 'EAN', testo: p.ean ?? '[EAN da listino]' },
+].filter((v): v is { titolo: string; testo: string } => !!v);
+---
+<section class="ptech" aria-labelledby="tech-t">
+  <div class="container ptech__grid">
+    <div class="ptech__intro">
+      <h2 class="ptech__title" id="tech-t">INFORMAZIONI TECNICHE</h2>
+      <p class="ptech__note">Dati dal listino prodotti 2027.</p>
+    </div>
+    <div class="ptech__acc" data-accordion>
+      {voci.map((v, i) => (
+        <div class="ptech__item">
+          <h3>
+            <button
+              type="button"
+              class="ptech__btn"
+              id={`acc-btn-${i}`}
+              aria-expanded={i === 0 ? 'true' : 'false'}
+              aria-controls={`acc-${i}`}
+              data-acc-btn
+            >
+              {v.titolo}
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path class="ptech__v" d="M12 5v14"></path>
+                <path d="M5 12h14"></path>
+              </svg>
+            </button>
+          </h3>
+          <div id={`acc-${i}`} class="ptech__panel" role="region" aria-labelledby={`acc-btn-${i}`} data-acc-panel hidden={i !== 0}>
+            {v.testo}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-accordion]').forEach((acc) => {
+    const btns = Array.from(acc.querySelectorAll<HTMLButtonElement>('[data-acc-btn]'));
+    const set = (open: number) =>
+      btns.forEach((b, i) => {
+        b.setAttribute('aria-expanded', String(i === open));
+        const panel = document.getElementById(b.getAttribute('aria-controls') || '');
+        if (panel) panel.hidden = i !== open;
+      });
+    set(0);
+    btns.forEach((b, i) =>
+      b.addEventListener('click', () => set(b.getAttribute('aria-expanded') === 'true' ? -1 : i)),
+    );
+  });
+</script>
+
+<style>
+  .ptech { padding: 64px 0; }
+  .ptech__grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .ptech__intro { display: flex; flex-direction: column; gap: 12px; }
+  .ptech__title { font-size: 28px; font-weight: var(--fw-light); letter-spacing: var(--ls-title); line-height: 1.2; color: var(--c-strong); }
+  .ptech__note { font-size: 15px; color: var(--c-muted); }
+  .ptech__acc { border-bottom: 1px solid var(--c-border); }
+  .ptech__item { border-top: 1px solid var(--c-border); }
+  .ptech__btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 64px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    font-weight: var(--fw-bold);
+    text-align: left;
+    color: var(--c-strong);
+    cursor: pointer;
+  }
+  .ptech__btn svg { flex: none; }
+  .ptech__btn[aria-expanded='true'] .ptech__v { display: none; }
+  .ptech__panel { padding: 0 0 24px; font-size: 15px; line-height: 1.7; color: var(--c-text); overflow-wrap: anywhere; }
+  .ptech__panel[hidden] { display: none; }
+
+  @media (min-width: 1024px) {
+    .ptech { padding: 96px 0; }
+    .ptech__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+    .ptech__intro { grid-column: span 4; }
+    .ptech__acc { grid-column: 5 / span 8; }
+    .ptech__title { font-size: 32px; }
+  }
+</style>

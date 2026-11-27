@@ -1,0 +1,71 @@
+---
+/** "Completa la tua routine": gli altri prodotti della linea (stessa card della pagina di linea). */
+import Icon from '../Icon.astro';
+import ProductCard from '../ProductCard.astro';
+import { testoLineaSu, type Linea } from '../../data/linee';
+import { rotte } from '../../data/rotte';
+import type { Prodotto } from '../../data/prodotti';
+
+interface Props {
+  linea: Linea;
+  prodotti: Prodotto[];
+}
+const { linea, prodotti } = Astro.props;
+---
+<section class="prout" aria-labelledby="routine-t" style={`--pr-bg:${linea.tintaChiara}`}>
+  <div class="container">
+    <div class="prout__head">
+      <div class="prout__titles">
+        <h2 class="prout__title" id="routine-t">
+          COMPLETA LA TUA ROUTINE <b style={`color:${testoLineaSu(linea, linea.tintaChiara, 3)}`}>{linea.nome}</b>
+        </h2>
+        <p class="prout__subtitle">I prodotti della linea agiscono in sinergia</p>
+      </div>
+      <a class="arrow-link prout__all" href={rotte.linea(linea.id)} style={`color:${testoLineaSu(linea, linea.tintaChiara)}`}>
+        Tutta la linea {linea.nome} <Icon name="arrow-right" />
+      </a>
+    </div>
+    <ul role="list" class="prout__list">
+      {prodotti.map((p) => <li><ProductCard prodotto={p} linea={linea} /></li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .prout { padding: 64px 0; background: var(--pr-bg); }
+  .prout__head { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+  .prout__titles { display: flex; flex-direction: column; gap: 8px; }
+  .prout__title { font-size: 28px; font-weight: var(--fw-light); letter-spacing: var(--ls-title); line-height: 1.2; color: var(--c-strong); }
+  .prout__subtitle { font-size: 18px; font-weight: var(--fw-bold); font-style: italic; line-height: 1.35; color: var(--c-strong); }
+  .prout__all { white-space: nowrap; }
+  .prout__all:hover { color: var(--c-strong) !important; }
+
+  /* Mobile: carosello con scroll-snap */
+  .prout__list {
+    display: flex;
+    gap: 16px;
+    margin: 0 calc(-1 * var(--page-gutter));
+    padding: 4px var(--page-gutter) 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--page-gutter);
+    overscroll-behavior-x: contain;
+  }
+  .prout__list > li { display: flex; flex: 0 0 78%; max-width: 280px; scroll-snap-align: start; }
+
+  @media (min-width: 1024px) {
+    .prout { padding: 96px 0; }
+    .prout__head { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 40px; }
+    .prout__title { font-size: 36px; }
+    .prout__subtitle { font-size: 20px; }
+    .prout__list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+    }
+    .prout__list > li { max-width: none; }
+  }
+</style>

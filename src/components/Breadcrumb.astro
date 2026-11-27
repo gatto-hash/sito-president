@@ -7,6 +7,8 @@ export interface VoceBreadcrumb {
   label: string;
   href?: string;
   colore?: string;
+  /** Colore del testo del link (es. la linea in Bold nel suo colore, AA su bianco). */
+  coloreTesto?: string;
 }
 interface Props {
   voci: VoceBreadcrumb[];
@@ -14,7 +16,7 @@ interface Props {
 const { voci } = Astro.props;
 ---
 <div class="breadcrumb">
-  <nav class="container" aria-label="Percorso">
+  <nav class="container breadcrumb__bar" aria-label="Percorso">
     <ol role="list" class="breadcrumb__list">
       {voci.map((v, i) => {
         const corrente = i === voci.length - 1;
@@ -24,18 +26,28 @@ const { voci } = Astro.props;
             {corrente ? (
               <span class="breadcrumb__current" aria-current="page">{v.label}</span>
             ) : (
-              <a class="breadcrumb__link" href={v.href}>{v.label}</a>
+              <a
+                class:list={['breadcrumb__link', v.coloreTesto && 'breadcrumb__link--strong']}
+                href={v.href}
+                style={v.coloreTesto ? `color:${v.coloreTesto}` : undefined}
+              >{v.label}</a>
             )}
             {!corrente && <span class="breadcrumb__sep" aria-hidden="true">›</span>}
           </li>
         );
       })}
     </ol>
+    {Astro.slots.has('fine') && <div class="breadcrumb__end"><slot name="fine" /></div>}
   </nav>
 </div>
 
 <style>
   .breadcrumb { border-bottom: 1px solid var(--c-border); }
+  .breadcrumb__bar { display: flex; flex-direction: column; align-items: flex-start; padding: 4px 0; }
+  .breadcrumb__end { display: flex; align-items: center; }
+  @media (min-width: 768px) {
+    .breadcrumb__bar { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; padding: 0; }
+  }
   .breadcrumb__list {
     display: flex;
     flex-wrap: wrap;
@@ -56,6 +68,7 @@ const { voci } = Astro.props;
     text-underline-offset: 3px;
   }
   .breadcrumb__link:hover { color: var(--c-strong); }
+  .breadcrumb__link--strong { font-weight: var(--fw-bold); letter-spacing: .04em; }
   .breadcrumb__sep { color: var(--c-muted); }
   .breadcrumb__current { color: var(--c-strong); font-weight: var(--fw-bold); }
 </style>

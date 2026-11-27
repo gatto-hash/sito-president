@@ -1,0 +1,97 @@
+---
+/**
+ * Template della scheda prodotto: /la-gamma/<linea>/<prodotto>/.
+ * Tutto viene dai dati (prodotti.ts, linee.ts). Le sezioni senza contenuto vengono omesse:
+ * il modulo RDA/MILS compare solo se il prodotto ha RDA o MILS, la routine solo se ci sono correlati.
+ */
+import Base from '../../../../layouts/Base.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
+import Icon from '../../../../components/Icon.astro';
+import Galleria from '../../../../components/prodotto/Galleria.astro';
+import InfoProdotto from '../../../../components/prodotto/InfoProdotto.astro';
+import ModuloTecnico from '../../../../components/prodotto/ModuloTecnico.astro';
+import InfoTecniche from '../../../../components/prodotto/InfoTecniche.astro';
+import Routine from '../../../../components/prodotto/Routine.astro';
+import { getLinea, type Linea } from '../../../../data/linee';
+import { prodotti, prodottiCorrelati, type Prodotto } from '../../../../data/prodotti';
+import { rotte } from '../../../../data/rotte';
+import { getContenuti } from '../../../../data/linee-contenuti';
+
+export function getStaticPaths() {
+  return prodotti.map((prodotto) => ({
+    params: { linea: prodotto.linea, prodotto: prodotto.slug },
+    props: { prodotto, linea: getLinea(prodotto.linea)! },
+  }));
+}
+
+interface Props {
+  prodotto: Prodotto;
+  linea: Linea;
+}
+const { prodotto: p, linea } = Astro.props;
+
+// Se la pagina di linea racconta questo prodotto (es. "Lo spazzolino della linea"), se ne riusano testi e foto.
+const spz = getContenuti(linea.id).spazzolino;
+const raccontato = spz && spz.prodotto === p.slug ? spz : undefined;
+const galleria =
+  p.galleria ??
+  [
+    p.immagine && { src: p.immagine, alt: `${p.nome}${p.formato ? `: ${p.formato.toLowerCase()}` : ''}`, tipo: 'packshot' as const },
+    raccontato && { src: raccontato.immagine, alt: raccontato.alt, tipo: 'foto' as const },
+    { src: linea.still, alt: `Still life della linea ${linea.nome}`, tipo: 'foto' as const },
+  ].filter((x): x is { src: string; alt: string; tipo: 'packshot' | 'foto' } => !!x);
+const correlati = prodottiCorrelati(p);
+const hrefLinea = rotte.linea(linea.id);
+---
+<Base
+  title={`${p.nome}${p.formato ? ` · ${p.formato}` : ''} · ${linea.nome} · PRESIDENT`}
+  description={`${p.nome}, linea PRESIDENT ${linea.nome}: ${p.claim.toLowerCase()}.`}
+  sezione="la-gamma"
+  lineaCorrente={linea.id}
+>
+  <Breadcrumb
+    voci={[
+      { label: 'Home', href: rotte.home },
+      { label: 'La gamma', href: rotte.gamma },
+      { label: linea.nome, href: hrefLinea, colore: linea.colore, coloreTesto: linea.testoSuBianco },
+      { label: p.nome },
+    ]}
+  >
+    <a slot="fine" class="back-link" href={hrefLinea} style={`color:${linea.testoSuBianco}`}>
+      <Icon name="arrow-left" size={16} />Torna alla linea {linea.nome}
+    </a>
+  </Breadcrumb>
+
+  <section class="pmain" aria-label="Prodotto">
+    <div class="container pmain__grid">
+      <div class="pmain__gallery"><Galleria linea={linea} immagini={galleria} /></div>
+      <div class="pmain__info"><InfoProdotto linea={linea} prodotto={p} descrizioneFallback={raccontato?.paragrafi} /></div>
+    </div>
+  </section>
+
+  {(p.rda !== undefined || p.mils !== undefined) && <ModuloTecnico prodotto={p} />}
+  <InfoTecniche prodotto={p} />
+  {correlati.length > 0 && <Routine linea={linea} prodotti={correlati} />}
+</Base>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: var(--fw-bold);
+  }
+  .back-link:hover { color: var(--c-strong) !important; }
+
+  .pmain { padding: 32px 0 56px; }
+  .pmain__grid { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+
+  @media (min-width: 1024px) {
+    .pmain { padding: 64px 0; }
+    .pmain__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+    .pmain__gallery { grid-column: span 6; }
+    .pmain__info { grid-column: 7 / span 6; padding-left: 24px; }
+  }
+</style>

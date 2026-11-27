@@ -52,15 +52,25 @@ export interface Prodotto {
   /** Solo BABY-CHILDREN: gusti con icona. */
   gusti?: Gusto[];
 
-  /* ---- Scheda prodotto (prompt 4) ---- */
-  /** Paragrafi HTML con <b> per le parole in grassetto. */
+  /* ---- Scheda prodotto ---- */
+  /** Paragrafi HTML con <b> per le parole in grassetto. Senza: la descrizione della linea. */
   descrizione?: string[];
-  attivi?: { nome: string; funzione: string }[];
-  galleria?: { src: string; alt: string }[];
+  /** Attivi caratterizzanti (elenco breve). */
+  attivi?: string[];
+  /** Spiegazione dei badge sotto i badge (HTML). Senza: generata da RDA, fluoro e MILS. */
+  notaBadge?: string;
+  /** Galleria. Senza: packshot + still della linea. */
+  galleria?: { src: string; alt: string; tipo: 'packshot' | 'foto' }[];
   inci?: string;
+  /** Sale di fluoro, es. "Fluoruro di sodio" (voce "Contenuto di fluoro"). */
+  fluoroSale?: string;
   codice?: string;
+  /** EAN: da listino (punto aperto). */
   ean?: string;
+  /** Link Amazon. Senza: ricerca provvisoria "president <tipo> <linea>". */
   amazonUrl?: string;
+  /** Slug dei prodotti correlati, in ordine. Senza: gli altri prodotti della linea. */
+  correlati?: string[];
 }
 
 /* ---------------- BABY-CHILDREN: fasce d'età ---------------- */
@@ -124,7 +134,23 @@ export const prodotti: Prodotto[] = [
   { slug: 'spazzolino-active', linea: 'active', nome: 'Spazzolino Active', tipo: 'spazzolino', claim: 'Soft', immagine: img('active-spazzolino.png'), mils: 6 },
 
   /* SENSITIVE */
-  { slug: 'dentifricio-sensitive', linea: 'sensitive', nome: 'Dentifricio Sensitive', tipo: 'dentifricio', claim: 'Denti sensibili', formato: 'Tubo da 75 ml', immagine: img('sensitive-dentifricio.png'), rda: 20, fluoroPpm: 950 },
+  {
+    slug: 'dentifricio-sensitive', linea: 'sensitive', nome: 'Dentifricio Sensitive', tipo: 'dentifricio', claim: 'Denti sensibili', formato: 'Tubo da 75 ml', immagine: img('sensitive-dentifricio.png'), rda: 20, fluoroPpm: 950,
+    notaBadge: '<b>RDA 20</b>: abrasività molto bassa, sicura per smalto e dentina. <b>950 ppm F⁻</b>: quantità di fluoro, che rinforza lo smalto.',
+    descrizione: [
+      'Trattamento quotidiano e <b>delicato per i denti sensibili</b>. Il <b>Nitrato di Potassio</b> svolge un’azione desensibilizzante, riducendo la trasmissione degli stimoli dolorosi alle terminazioni nervose, mentre l’<b>Idrossiapatite</b> favorisce la remineralizzazione dello smalto.',
+      'La <b>bassa abrasività</b> lo rende delicato su smalto e gengive e ideale per un <b>uso quotidiano e prolungato</b>. Tiglio, Camomilla e Bisabololo, dalle <b>proprietà lenitive</b>, alleviano le irritazioni del cavo orale. Contiene Fluoruro di sodio (950 ppm F⁻).',
+    ],
+    attivi: ['Nitrato di Potassio', 'Idrossiapatite', 'Bisabololo', 'Tiglio', 'Camomilla'],
+    galleria: [
+      { src: img('sensitive-dentifricio.png'), alt: 'Dentifricio Sensitive: astuccio e tubo da 75 ml', tipo: 'packshot' },
+      { src: img('sensitive-still.jpg'), alt: 'Still life della linea Sensitive su fondo azzurro con gocce d’acqua', tipo: 'foto' },
+    ],
+    inci: 'Aqua (Water), Sorbitol, Hydrated Silica, Xylitol, Potassium Nitrate, Hydroxyapatite, Cellulose Gum, Aroma (Flavor), Sodium Myristoyl Sarcosinate, Sodium Cocoyl Glutamate, Propylene Glycol, Tilia Cordata Flower Extract, Chamomilla Recutita (Matricaria) Flower Extract, Sodium Fluoride, Sodium Saccharin, Bisabolol, Mentha Piperita (Peppermint) Oil, Menthol, Anethole, Limonene, Sodium Benzoate, CI 77891 (Titanium Dioxide), CI 42090 (Blue 1).',
+    fluoroSale: 'Fluoruro di sodio',
+    codice: '0061',
+    correlati: ['collutorio-sensitive', 'gel-gengivale-sensitive-plus', 'spazzolino-sensitive', 'filo-interdentale-sensitive'],
+  },
   { slug: 'gel-gengivale-sensitive-plus', linea: 'sensitive', nome: 'Gel gengivale Sensitive Plus', tipo: 'gel', claim: 'Trattamento mirato', formato: 'Tubo da 30 ml', immagine: img('sensitive-gel.png') },
   { slug: 'collutorio-sensitive', linea: 'sensitive', nome: 'Collutorio Sensitive', tipo: 'collutorio', claim: 'Denti sensibili', formato: 'Flacone da 200 ml', immagine: img('sensitive-collutorio.png') },
   { slug: 'spazzolino-sensitive', linea: 'sensitive', nome: 'Spazzolino Sensitive', tipo: 'spazzolino', claim: 'Extra soft', immagine: img('sensitive-spazzolino.png'), mils: 4 },
@@ -168,6 +194,16 @@ export const prodottiDellaLinea = (linea: string) => prodotti.filter((p) => p.li
 export const getProdotto = (linea: string, slug: string) =>
   prodotti.find((p) => p.linea === linea && p.slug === slug);
 export const hrefProdotto = (p: Prodotto) => rotte.prodotto(p.linea, p.slug);
+
+/** Prodotti correlati: quelli indicati nei dati, altrimenti gli altri prodotti della stessa linea. */
+export const prodottiCorrelati = (p: Prodotto) =>
+  p.correlati
+    ? p.correlati.map((slug) => getProdotto(p.linea, slug)).filter((x): x is Prodotto => !!x)
+    : prodottiDellaLinea(p.linea).filter((x) => x.slug !== p.slug);
+
+/** Link Amazon del prodotto (provvisorio finché non c'è lo store PRESIDENT). */
+export const amazonProdotto = (p: Prodotto) =>
+  p.amazonUrl ?? `https://www.amazon.it/s?k=${['president', p.tipo, p.linea].join('+')}`;
 
 /* ---------------- Scala MILS (riga del prodotto evidenziata) ---------------- */
 export const scalaMils = [

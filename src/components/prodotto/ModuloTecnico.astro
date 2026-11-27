@@ -1,0 +1,74 @@
+---
+/**
+ * Modulo RDA (dentifrici) o MILS (spazzolini) della scheda prodotto.
+ * Il componente che lo usa lo mostra solo se il prodotto ha RDA o MILS.
+ */
+import Icon from '../Icon.astro';
+import BadgeRda from '../badge/BadgeRda.astro';
+import BadgeMils from '../badge/BadgeMils.astro';
+import ScalaRda from '../ScalaRda.astro';
+import ScalaMils from '../ScalaMils.astro';
+import { rotte } from '../../data/rotte';
+import type { Prodotto } from '../../data/prodotti';
+
+interface Props {
+  prodotto: Prodotto;
+}
+const { prodotto: p } = Astro.props;
+const rda = p.rda !== undefined;
+---
+<section class="pmod" aria-labelledby="modulo-t">
+  <div class="container pmod__grid">
+    <div class="pmod__text">
+      <div class="pmod__head">
+        {rda ? <BadgeRda rda={p.rda} size="md" /> : <BadgeMils mils={p.mils} />}
+        <span class="pmod__kind">{rda ? 'ABRASIVITÀ DICHIARATA' : 'MORBIDEZZA DELLE SETOLE'}</span>
+      </div>
+      {rda ? (
+        <>
+          <h2 class="pmod__title" id="modulo-t">Delicato su smalto e dentina</h2>
+          <p class="pmod__p">L’<b>RDA</b> (Relative Dentin Abrasion) misura quanto un dentifricio consuma la dentina, secondo la norma <b>ISO 11609</b>. Un valore fino a 70 è considerato sicuro per dentina, cemento e smalto.</p>
+          <a class="arrow-link" href={rotte.ricerca.abrasivita}>Scopri l’abrasività dichiarata <Icon name="arrow-right" /></a>
+        </>
+      ) : (
+        <>
+          <h2 class="pmod__title" id="modulo-t">La morbidezza delle setole</h2>
+          <p class="pmod__p">I <b>MILS</b> misurano il diametro delle setole (1 MIL = 0,0254 mm): <b>meno MILS significa setole più sottili e flessibili</b>, più delicate su denti e gengive.</p>
+          <a class="arrow-link" href={rotte.ricerca.spazzolini}>Come scegliere lo spazzolino <Icon name="arrow-right" /></a>
+        </>
+      )}
+    </div>
+    <div class="pmod__scale">
+      {rda ? (
+        <ScalaRda rda={p.rda!} nomeProdotto={p.nome} variante="scheda" />
+      ) : (
+        <ScalaMils mils={p.mils!} nomeProdotto={p.nome} descrizione={`setole ${p.claim.toLowerCase()}`} />
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .pmod { padding: 64px 0; background: var(--c-bg-grey); }
+  .pmod__grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+  .pmod__text { display: flex; flex-direction: column; gap: 16px; }
+  .pmod__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .pmod__kind { font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .16em; color: var(--c-strong); }
+  .pmod__title {
+    font-size: 28px;
+    font-weight: var(--fw-light);
+    letter-spacing: var(--ls-title);
+    line-height: 1.15;
+    text-transform: uppercase;
+    color: var(--c-strong);
+  }
+  .pmod__p { font-size: 17px; line-height: var(--lh-body); }
+
+  @media (min-width: 1024px) {
+    .pmod { padding: 88px 0; }
+    .pmod__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+    .pmod__text { grid-column: span 5; }
+    .pmod__scale { grid-column: 7 / span 6; }
+    .pmod__title { font-size: 36px; }
+  }
+</style>

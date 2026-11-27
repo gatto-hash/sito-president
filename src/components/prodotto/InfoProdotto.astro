@@ -1,0 +1,120 @@
+---
+/** Colonna informazioni: titolo, claim, badge tecnici, descrizione, attivi, CTA Amazon. */
+import Icon from '../Icon.astro';
+import BadgeRda from '../badge/BadgeRda.astro';
+import BadgeMils from '../badge/BadgeMils.astro';
+import BadgeFluoro from '../badge/BadgeFluoro.astro';
+import { testoLineaSu, type Linea } from '../../data/linee';
+import { amazonProdotto, livelloRda, type Prodotto } from '../../data/prodotti';
+
+interface Props {
+  linea: Linea;
+  prodotto: Prodotto;
+  /** Paragrafi alternativi quando il prodotto non ha una descrizione propria. */
+  descrizioneFallback?: string[];
+}
+const { linea, prodotto: p, descrizioneFallback } = Astro.props;
+const colore = testoLineaSu(linea, '#FFFFFF');
+const coloreTitolo = testoLineaSu(linea, '#FFFFFF', 3);
+
+const legendaRda: Record<string, string> = {
+  bassa: 'sicura per dentina, cemento e smalto',
+  media: 'sicura per lo smalto, attenzione sulla dentina',
+  alta: 'rischiosa per dentina e cemento',
+  limite: 'potenzialmente lesiva',
+};
+const notaGenerata = [
+  p.rda !== undefined && `<b>RDA ${p.rda}</b>: abrasività ${livelloRda(p.rda)}, ${legendaRda[livelloRda(p.rda)]}.`,
+  p.fluoroPpm !== undefined && `<b>${p.fluoroPpm} ppm F⁻</b>: quantità di fluoro, che rinforza lo smalto.`,
+  p.mils !== undefined && `<b>${p.mils} MILS</b>: diametro delle setole, meno MILS significa setole più morbide.`,
+]
+  .filter(Boolean)
+  .join(' ');
+const nota = p.notaBadge ?? notaGenerata;
+const conBadge = p.rda !== undefined || p.fluoroPpm !== undefined || p.mils !== undefined;
+// TODO: descrizione dedicata per ogni prodotto; finché manca si usa quella della linea.
+const descrizione = p.descrizione ?? descrizioneFallback ?? [linea.descrizione];
+---
+<div class="pinfo">
+  <div class="pinfo__head">
+    <h1 class="pinfo__title" style={`color:${coloreTitolo}`}>
+      {p.nome.toUpperCase()}
+      {p.formato && <span class="pinfo__format">{p.formato}</span>}
+    </h1>
+    <p class="pinfo__claim">{p.claim.toUpperCase()}</p>
+  </div>
+
+  {conBadge && (
+    <div class="pinfo__badges">
+      {p.rda !== undefined && <BadgeRda rda={p.rda} size="md" />}
+      {p.mils !== undefined && <BadgeMils mils={p.mils} />}
+      {p.fluoroPpm !== undefined && <BadgeFluoro ppm={p.fluoroPpm} size="md" />}
+    </div>
+  )}
+  {nota && <p class="pinfo__note" set:html={nota} />}
+
+  {descrizione.map((t) => <p class="pinfo__p" set:html={t} />)}
+
+  {p.varianti && <p class="pinfo__p"><b>Varianti:</b> {p.varianti}</p>}
+
+  {p.attivi && p.attivi.length > 0 && (
+    <div class="pinfo__actives" style={`color:${colore}`}>
+      <h2 class="pinfo__actives-title">ATTIVI CARATTERIZZANTI</h2>
+      <p class="pinfo__actives-list">{p.attivi.map((a) => `– ${a}`).join(' ')}</p>
+    </div>
+  )}
+
+  <div class="pinfo__cta">
+    {p.disponibilita ? (
+      <p class="pinfo__availability">{p.disponibilita}</p>
+    ) : (
+      <>
+        <a
+          class="btn btn--primary pinfo__buy"
+          href={amazonProdotto(p)}
+          target="_blank"
+          rel="noopener"
+          aria-label="Acquista su Amazon (si apre in una nuova scheda)"
+        >Acquista <Icon name="external" /></a>
+        <span class="pinfo__buy-note">Su Amazon.it · si apre in una nuova scheda</span>
+      </>
+    )}
+  </div>
+</div>
+
+<style>
+  .pinfo { display: flex; flex-direction: column; gap: 18px; }
+  .pinfo__head { display: flex; flex-direction: column; gap: 6px; }
+  .pinfo__title { font-size: 30px; font-weight: var(--fw-bold); letter-spacing: var(--ls-title); line-height: 1.1; }
+  .pinfo__format { font-size: 18px; font-weight: var(--fw-regular); font-style: italic; letter-spacing: 0; color: var(--c-text); white-space: nowrap; }
+  .pinfo__claim { font-size: 21px; font-weight: var(--fw-light); letter-spacing: .04em; color: var(--c-strong); }
+  .pinfo__badges { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+  .pinfo__note { font-size: 14px; line-height: 1.5; color: var(--c-muted); }
+  .pinfo__note :global(b) { color: var(--c-strong); }
+  .pinfo__p { font-size: 17px; line-height: var(--lh-body); }
+  .pinfo__actives { display: flex; flex-direction: column; gap: 4px; }
+  .pinfo__actives-title { font-size: 15px; font-weight: var(--fw-bold); font-style: italic; letter-spacing: .06em; }
+  .pinfo__actives-list { font-size: 17px; font-weight: var(--fw-bold); font-style: italic; line-height: 1.5; }
+  .pinfo__cta { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .pinfo__buy { width: 100%; padding-inline: 30px; }
+  .pinfo__buy-note { font-size: 13px; color: var(--c-muted); }
+  .pinfo__availability {
+    align-self: flex-start;
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    background: var(--c-strong);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 600px) {
+    .pinfo__buy { width: auto; align-self: flex-start; }
+  }
+  @media (min-width: 1024px) {
+    .pinfo__title { font-size: 40px; }
+    .pinfo__claim { font-size: 24px; }
+  }
+</style>
