@@ -1,0 +1,164 @@
+---
+/** Navigatore tra le linee: precedente/successiva (ordine circolare) + le 9 tessere compatte. */
+import Icon from '../Icon.astro';
+import { linee, lineeVicine, type Linea } from '../../data/linee';
+import { rotte } from '../../data/rotte';
+
+interface Props {
+  linea: Linea;
+}
+const { linea } = Astro.props;
+const { precedente, successiva } = lineeVicine(linea.id);
+const vicine = [
+  { tipo: 'precedente', etichetta: 'LINEA PRECEDENTE', l: precedente },
+  { tipo: 'successiva', etichetta: 'LINEA SUCCESSIVA', l: successiva },
+] as const;
+---
+<nav class="lnav" aria-label="Altre linee PRESIDENT">
+  <div class="container">
+    <h2 class="section-title" id="altre-linee-t">Scopri le altre linee</h2>
+    <p class="subtitle lnav__subtitle">Un colore per ogni esigenza: passa alla linea più vicina alla tua</p>
+
+    <div class="lnav__pair">
+      {vicine.map(({ tipo, etichetta, l }) => (
+        <a
+          class:list={['lnav__block', `lnav__block--${tipo}`]}
+          href={rotte.linea(l.id)}
+          aria-label={`Linea ${tipo}: ${l.nome}, ${l.esigenza}`}
+          style={`--nb-bg:${l.colore};--nb-fg:${l.testoSuColore}`}
+        >
+          {tipo === 'precedente' && <Icon name="arrow-left" size={28} />}
+          <span class="lnav__block-text">
+            <span class="lnav__block-label">{etichetta}</span>
+            <span class="lnav__block-name">{l.nome}</span>
+            <span class="lnav__block-need">{l.esigenza}</span>
+          </span>
+          {tipo === 'successiva' && <Icon name="arrow-right" size={28} />}
+        </a>
+      ))}
+    </div>
+
+    <h3 class="lnav__all-title" id="tutte-linee-t">TUTTE LE {linee.length} LINEE</h3>
+    <ul role="list" class="lnav__tiles" aria-labelledby="tutte-linee-t">
+      {linee.map((l) => {
+        const stile = `--nt-bg:${l.colore};--nt-fg:${l.testoSuColore}`;
+        return (
+          <li>
+            {l.id === linea.id ? (
+              <span class="lnav__tile lnav__tile--current" aria-current="page" style={stile}>
+                <span class="lnav__tile-name">{l.nome}</span>
+                <span class="lnav__tile-need">{l.esigenza}</span>
+                <span class="lnav__here">SEI QUI</span>
+              </span>
+            ) : (
+              <a class="lnav__tile" href={rotte.linea(l.id)} style={stile}>
+                <span class="lnav__tile-name">{l.nome}</span>
+                <span class="lnav__tile-need">{l.esigenza}</span>
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+
+    <a class="arrow-link lnav__back" href={rotte.gamma}>Torna a tutta la gamma <Icon name="arrow-right" /></a>
+  </div>
+</nav>
+
+<style>
+  .lnav { padding: 64px 0; }
+  .lnav__subtitle { margin-top: 12px; }
+
+  .lnav__pair { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 32px; }
+  .lnav__block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 140px;
+    padding: 24px;
+    border-radius: 4px;
+    background: var(--nb-bg);
+    color: var(--nb-fg);
+    text-decoration: none;
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .lnav__block:hover { color: var(--nb-fg); box-shadow: 0 18px 36px rgba(29, 29, 27, .22); transform: translateY(-3px); }
+  .lnav__block :global(svg) { flex: none; }
+  .lnav__block-text { display: flex; flex-direction: column; gap: 4px; }
+  .lnav__block--successiva .lnav__block-text { align-items: flex-end; text-align: right; }
+  .lnav__block-label { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: .14em; }
+  .lnav__block-name { font-size: 26px; font-weight: var(--fw-bold); letter-spacing: .03em; line-height: 1.1; overflow-wrap: anywhere; }
+  .lnav__block-need { font-size: 17px; font-weight: var(--fw-medium); line-height: 1.35; }
+
+  .lnav__all-title { margin-top: 40px; font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .14em; line-height: 20px; color: var(--c-strong); }
+
+  /* Mobile: fila a scorrimento orizzontale */
+  .lnav__tiles {
+    display: flex;
+    gap: 12px;
+    margin: 14px calc(-1 * var(--page-gutter)) 0;
+    padding: 8px var(--page-gutter) 16px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--page-gutter);
+  }
+  .lnav__tiles > li { display: flex; flex: 0 0 132px; scroll-snap-align: start; }
+  .lnav__tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    height: 132px;
+    padding: 14px 12px;
+    border-radius: 4px;
+    background: var(--nt-bg);
+    color: var(--nt-fg);
+    text-decoration: none;
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  a.lnav__tile:hover { color: var(--nt-fg); box-shadow: 0 16px 32px rgba(29, 29, 27, .20); transform: translateY(-3px); }
+  .lnav__tile-name { font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .03em; line-height: 1.25; overflow-wrap: anywhere; }
+  .lnav__tile-need { font-size: 12.5px; font-weight: var(--fw-medium); line-height: 1.3; }
+  .lnav__tile--current { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px var(--c-strong); }
+  .lnav__here {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--c-strong);
+    color: #FFFFFF;
+    font-size: 10.5px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .1em;
+  }
+
+  .lnav__back { margin-top: 24px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lnav__block:hover, a.lnav__tile:hover { transform: none; }
+  }
+
+  @media (min-width: 768px) {
+    .lnav__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  }
+
+  @media (min-width: 1024px) {
+    .lnav { padding: 96px 0 112px; }
+    .lnav__pair { margin-top: 40px; }
+    .lnav__block { min-height: 160px; padding: 28px 36px; }
+    .lnav__block-name { font-size: 34px; }
+    .lnav__block-need { font-size: 18px; }
+    .lnav__tiles {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      margin: 14px 0 0;
+      padding: 0;
+      overflow: visible;
+    }
+    .lnav__back { margin-top: 32px; }
+  }
+</style>

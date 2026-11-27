@@ -1,0 +1,80 @@
+---
+/** Fascia "Acquista" nel colore della linea. Sulle linee chiare testo e contorni scuri. */
+import Icon from '../Icon.astro';
+import LineIcon from '../LineIcon.astro';
+import { rotte } from '../../data/rotte';
+import type { Linea } from '../../data/linee';
+
+interface Props {
+  linea: Linea;
+}
+const { linea } = Astro.props;
+---
+<section class="lbuy" aria-labelledby="acquista-t" style={`--lb-bg:${linea.colore};--lb-fg:${linea.testoSuColore}`}>
+  <div class="container lbuy__inner">
+    <div class="lbuy__text">
+      <p class="eyebrow lbuy__eyebrow">ACQUISTA</p>
+      <h2 class="lbuy__title" id="acquista-t">Acquista i prodotti {linea.nome}</h2>
+      <p class="lbuy__p">Tutta la linea è disponibile online, sullo store PRESIDENT su Amazon.</p>
+    </div>
+    <div class="lbuy__side">
+      <div class="lbuy__actions">
+        <a
+          class="btn lbuy__amazon"
+          href={linea.amazonUrl}
+          target="_blank"
+          rel="noopener"
+          aria-label="Acquista su Amazon: si apre su Amazon in una nuova scheda"
+        >Acquista su Amazon <Icon name="external" /></a>
+        <!-- Punto aperto: destinazione di "Trova lo store" da confermare con il cliente. -->
+        <a class="btn lbuy__store" href={rotte.trovaStore}>
+          <LineIcon name="luogo" size={18} strokeWidth={2} />Trova lo store
+        </a>
+      </div>
+      <p class="lbuy__hint">Amazon si apre in una nuova scheda</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lbuy { background: var(--lb-bg); color: var(--lb-fg); }
+  .lbuy__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 56px 0;
+  }
+  .lbuy__text { display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
+  .lbuy__eyebrow { color: var(--lb-fg); }
+  .lbuy__title {
+    font-size: 28px;
+    font-weight: var(--fw-light);
+    letter-spacing: var(--ls-title);
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+  .lbuy__p { font-size: 17px; line-height: 1.6; }
+  .lbuy__side { display: flex; flex-direction: column; gap: 10px; }
+  .lbuy__actions { display: flex; flex-wrap: wrap; gap: 12px 14px; }
+  .lbuy__amazon { background: #FFFFFF; color: var(--c-strong); padding-inline: 26px; }
+  .lbuy__amazon:hover { background: #FFFFFF; color: var(--c-strong); filter: brightness(.92); }
+  .lbuy__store { background: transparent; color: var(--lb-fg); border-color: var(--lb-fg); padding-inline: 24px; }
+  .lbuy__store:hover { background: var(--lb-fg); color: var(--lb-bg); }
+  .lbuy__store:hover :global(svg) { stroke: var(--lb-bg); }
+  .lbuy__hint { font-size: 13px; }
+  .lbuy a:focus-visible { outline-color: var(--lb-fg); }
+
+  @media (min-width: 1024px) {
+    .lbuy__inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+      min-height: 320px;
+      padding: 48px 0;
+    }
+    .lbuy__title { font-size: 36px; }
+    .lbuy__side { flex: none; align-items: flex-end; }
+    .lbuy__actions { flex-wrap: nowrap; }
+  }
+</style>

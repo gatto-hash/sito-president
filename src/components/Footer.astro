@@ -1,0 +1,146 @@
+---
+import { linee } from '../data/linee';
+import { rotte, vociRicerca } from '../data/rotte';
+
+const menu = [
+  { label: 'Home', href: rotte.home },
+  { label: 'Chi siamo', href: rotte.chiSiamo },
+  { label: 'La gamma', href: rotte.gamma },
+  { label: 'Contatti', href: rotte.contatti },
+];
+const legali = [
+  { label: 'Privacy policy', href: rotte.privacy },
+  { label: 'Cookie policy', href: rotte.cookie },
+  { label: 'Note legali', href: rotte.noteLegali },
+];
+---
+<footer class="site-footer">
+  <div class="site-footer__stripe" aria-hidden="true">
+    {linee.map((l) => <span style={`background:${l.colore}`}></span>)}
+  </div>
+
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <img src="/assets/img/logo-bianco.svg" alt="PRESIDENT" width="199" height="40" loading="lazy" />
+      <p class="site-footer__claim">Il sorriso di cui ci si può fidare</p>
+      <p class="site-footer__note">Prodotti sviluppati e fabbricati in Italia</p>
+    </div>
+
+    <nav class="site-footer__col site-footer__col--menu" aria-labelledby="footer-menu">
+      <h2 class="site-footer__title" id="footer-menu">MENU</h2>
+      <ul role="list">
+        {menu.map((m) => <li><a href={m.href}>{m.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col site-footer__col--ricerca" aria-labelledby="footer-ricerca">
+      <h2 class="site-footer__title" id="footer-ricerca">RICERCA</h2>
+      <ul role="list">
+        {vociRicerca.map((v) => <li><a href={v.href}>{v.titolo}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="site-footer__col site-footer__col--azienda">
+      <h2 class="site-footer__title">AZIENDA</h2>
+      <address>
+        Betafarma S.p.A.<br />
+        Via E. De Nicola, 10<br />
+        20090 Cesano Boscone (MI), Italia<br />
+        <a href="https://www.presi-dent.it/">www.presi-dent.it</a>
+      </address>
+    </div>
+  </div>
+
+  <div class="site-footer__bottom">
+    <div class="container site-footer__bottom-inner">
+      <p>© 2027 Betafarma S.p.A. · P.IVA [P.IVA]</p>
+      <ul role="list" class="site-footer__legal">
+        {legali.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--c-footer-bg); color: var(--c-footer-text); }
+  .site-footer__stripe { display: flex; height: 6px; }
+  .site-footer__stripe span { flex: 1; }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 48px 0 40px;
+  }
+  .site-footer__brand { display: flex; flex-direction: column; gap: 20px; }
+  .site-footer__brand img { height: 40px; width: auto; align-self: flex-start; }
+  .site-footer__claim { font-size: 18px; font-weight: var(--fw-bold); font-style: italic; }
+  .site-footer__note { font-size: 14px; color: var(--c-footer-muted); }
+
+  .site-footer__col { display: flex; flex-direction: column; gap: 12px; }
+  .site-footer__title {
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .14em;
+    line-height: 1.5;
+    color: var(--c-footer-muted);
+  }
+  .site-footer__col ul { margin: 0; }
+  .site-footer a { color: var(--c-footer-text); }
+  .site-footer a:hover { color: var(--c-footer-muted); }
+  .site-footer__col ul a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    font-size: 15px;
+    line-height: 2.1;
+    text-decoration: none;
+  }
+  .site-footer__col ul a:hover { text-decoration: underline; }
+  .site-footer address { font-style: normal; font-size: 15px; line-height: 1.7; }
+  .site-footer a:focus-visible { outline-color: #FFFFFF; }
+
+  .site-footer__bottom { border-top: 1px solid var(--c-footer-divider); }
+  .site-footer__bottom-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 0;
+    font-size: 13px;
+    color: var(--c-footer-muted);
+  }
+  .site-footer__legal { display: flex; flex-wrap: wrap; gap: 4px 28px; margin: 0; }
+  .site-footer__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--c-footer-muted);
+  }
+  .site-footer__legal a:hover { color: #FFFFFF; }
+
+  @media (min-width: 768px) {
+    .site-footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gutter); }
+  }
+
+  @media (min-width: 1024px) {
+    .site-footer__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      row-gap: 0;
+      padding: 64px 0 48px;
+    }
+    .site-footer__brand { grid-column: span 4; }
+    .site-footer__col--menu { grid-column: span 2; }
+    .site-footer__col--ricerca { grid-column: span 3; }
+    .site-footer__col--azienda { grid-column: span 3; }
+    .site-footer__col ul a { min-height: 0; }
+    .site-footer__bottom-inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 64px;
+      padding: 0;
+    }
+    .site-footer__legal a { min-height: 24px; }
+  }
+</style>

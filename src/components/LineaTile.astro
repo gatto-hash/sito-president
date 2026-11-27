@@ -1,0 +1,101 @@
+---
+/**
+ * Tessera di una linea (griglia "Un colore, un'esigenza"): link alla pagina della linea.
+ * Fondo nel colore della linea, testo nel colore "testo sul colore".
+ */
+import Icon from './Icon.astro';
+import { rotte } from '../data/rotte';
+import type { Linea } from '../data/linee';
+
+interface Props {
+  linea: Linea;
+}
+const { linea } = Astro.props;
+---
+<a
+  class="tile"
+  href={rotte.linea(linea.id)}
+  style={`--tile-bg:${linea.colore};--tile-fg:${linea.testoSuColore}`}
+>
+  <span class="tile__media">
+    <img
+      class="tile__img"
+      src={linea.still}
+      alt=""
+      width="830"
+      height="1173"
+      loading="lazy"
+      style={`object-position:50% ${linea.stillY}%`}
+    />
+  </span>
+  <span class="tile__body">
+    <span class="tile__head">
+      <span class="tile__name">{linea.nome}</span>
+      <span class="tile__need">{linea.esigenza}</span>
+    </span>
+    <span class="tile__foot">
+      <span class="tile__claim">{linea.claim}</span>
+      <Icon name="arrow-right" size={22} class="tile__arrow" />
+    </span>
+  </span>
+</a>
+
+<style>
+  .tile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 300px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--tile-bg);
+    color: var(--tile-fg);
+    text-decoration: none;
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .tile:hover, .tile:focus-visible { color: var(--tile-fg); box-shadow: 0 16px 32px rgba(29, 29, 27, .20); transform: translateY(-3px); }
+
+  .tile__media { display: block; flex: none; height: 160px; overflow: hidden; }
+  .tile__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: 50% 100%;
+    transition: transform .45s ease;
+  }
+  .tile:hover .tile__img, .tile:focus-visible .tile__img { transform: scale(1.07); }
+
+  .tile__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px 20px;
+  }
+  .tile__head { display: flex; flex-direction: column; gap: 4px; }
+  .tile__name { font-size: 22px; font-weight: var(--fw-bold); letter-spacing: .03em; line-height: 1.2; }
+  .tile__need { font-size: 17px; font-weight: var(--fw-medium); line-height: 1.35; }
+  .tile__foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .tile__claim {
+    max-width: 85%;
+    font-size: 12px;
+    font-weight: var(--fw-light);
+    letter-spacing: .06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  :global(.tile__arrow) { flex: none; }
+
+  @media (min-width: 1024px) {
+    .tile { height: 350px; min-height: 0; }
+    .tile__media { height: 190px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile, .tile__img { transition: none; }
+    .tile:hover, .tile:focus-visible { transform: none; }
+    .tile:hover .tile__img, .tile:focus-visible .tile__img { transform: none; }
+  }
+</style>

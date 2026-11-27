@@ -1,0 +1,47 @@
+---
+/**
+ * Badge RDA: fondo lime, inclinato. role="img" con aria-label esplicativo.
+ * size: sm (card prodotto) · md (scienza, scheda) · mini (solo "RDA", decorativo).
+ */
+import { etichettaRda, livelloRda } from '../../data/prodotti';
+interface Props {
+  rda?: number;
+  size?: 'mini' | 'sm' | 'md';
+}
+const { rda, size = 'sm' } = Astro.props;
+const decorativo = size === 'mini' || rda === undefined;
+const icona = { mini: 15, sm: 16, md: 22 }[size];
+---
+<span
+  class:list={['badge-rda', `badge-rda--${size}`]}
+  {...(decorativo
+    ? { 'aria-hidden': 'true' }
+    : { role: 'img', 'aria-label': etichettaRda(rda!), title: `RDA ${rda} – abrasività dichiarata ${livelloRda(rda!)}` })}
+>
+  <span class="badge-rda__in">
+    <svg aria-hidden="true" width={icona} height={icona} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M7 3C4.5 3 3 5 3 7.5c0 2.2 1 3.7 1.6 5.6.6 2 .8 4.4 1.6 6.4.4 1 .9 1.5 1.5 1.5 1.3 0 1.5-2.5 2-4.3.3-1 .8-1.7 2.3-1.7s2 .7 2.3 1.7c.5 1.8.7 4.3 2 4.3.6 0 1.1-.5 1.5-1.5.8-2 1-4.4 1.6-6.4.6-1.9 1.6-3.4 1.6-5.6C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3z"></path></svg>
+    <span class="badge-rda__label">RDA</span>
+    {!decorativo && <span class="badge-rda__value">{rda}</span>}
+  </span>
+</span>
+
+<style>
+  .badge-rda {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    background: var(--c-rda-bg);
+    color: var(--c-rda-text);
+    border-radius: 3px;
+    transform: skewX(-12deg);
+    padding: 4px 10px 4px 8px;
+  }
+  .badge-rda__in { display: inline-flex; align-items: center; gap: 5px; transform: skewX(12deg); }
+  .badge-rda svg { flex: none; }
+  .badge-rda__label { font-size: 10px; font-weight: var(--fw-bold); letter-spacing: .04em; }
+  .badge-rda__value { font-size: 16px; font-weight: var(--fw-bold); line-height: 1; }
+  .badge-rda--mini .badge-rda__label { font-size: 12px; }
+  .badge-rda--md { padding: 6px 14px 6px 10px; }
+  .badge-rda--md .badge-rda__label { font-size: 12px; }
+  .badge-rda--md .badge-rda__value { font-size: 22px; }
+</style>

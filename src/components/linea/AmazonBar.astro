@@ -1,0 +1,55 @@
+---
+/**
+ * Barra fissa in basso (solo mobile) "ACQUISTA SU AMAZON".
+ * Compare dopo la cover (data-amazon-after) e sparisce quando il footer è visibile.
+ */
+import Icon from '../Icon.astro';
+interface Props {
+  href: string;
+  /** id dell'elemento dopo il quale la barra compare. */
+  dopo: string;
+}
+const { href, dopo } = Astro.props;
+---
+<div class="abar" data-amazon-bar data-after={dopo} hidden>
+  <a
+    class="btn btn--primary abar__btn"
+    href={href}
+    target="_blank"
+    rel="noopener"
+    aria-label="Acquista su Amazon: si apre su Amazon in una nuova scheda"
+  >Acquista su Amazon <Icon name="external" /></a>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-amazon-bar]');
+  const after = bar && document.getElementById(bar.dataset.after || '');
+  const footer = document.querySelector('footer');
+  if (bar && after && footer && 'IntersectionObserver' in window) {
+    let coverVisibile = true;
+    let footerVisibile = false;
+    const update = () => { bar.hidden = coverVisibile || footerVisibile; };
+    new IntersectionObserver(([e]) => { coverVisibile = e.isIntersecting; update(); }).observe(after);
+    new IntersectionObserver(([e]) => { footerVisibile = e.isIntersecting; update(); }).observe(footer);
+  }
+</script>
+
+<style>
+  .abar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    padding: 10px var(--page-gutter) calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, .96);
+    border-top: 1px solid var(--c-border);
+    box-shadow: 0 -8px 24px rgba(29, 29, 27, .08);
+  }
+  .abar[hidden] { display: none; }
+  .abar__btn { width: 100%; min-height: 56px; }
+
+  @media (min-width: 1024px) {
+    .abar { display: none !important; }
+  }
+</style>

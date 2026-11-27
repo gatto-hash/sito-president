@@ -1,0 +1,160 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import LineaTile from '../../components/LineaTile.astro';
+import { linee } from '../../data/linee';
+import { rotte } from '../../data/rotte';
+
+/** Punto aperto: link provvisorio, in attesa dello store PRESIDENT su Amazon. */
+const amazonUrl = 'https://www.amazon.it/s?k=president+dentifricio';
+---
+<Base
+  title="La gamma · PRESIDENT"
+  description="Nove linee PRESIDENT per l’igiene orale, un colore per ogni esigenza: dalla protezione quotidiana alla cura più avanzata, fino all’igiene dei più piccoli."
+  sezione="la-gamma"
+>
+  <Breadcrumb voci={[{ label: 'Home', href: rotte.home }, { label: 'La gamma' }]} />
+
+  <section class="cover" aria-labelledby="gamma-t">
+    <img
+      class="cover__img"
+      src="/assets/img/gamma-hero-famiglia.jpg"
+      alt="Una famiglia di tre generazioni si lava i denti insieme davanti allo specchio del bagno, con i prodotti PRESIDENT sul lavabo"
+      width="2880"
+      height="1280"
+      fetchpriority="high"
+    />
+    <div class="container cover__inner">
+      <div class="cover__text">
+        <h1 class="cover__title" id="gamma-t">LA GAMMA</h1>
+        <p class="cover__subtitle">Da due referenze a nove linee al servizio della salute dentale</p>
+        <p class="cover__p cover__p--first">
+          Dal suo debutto con due referenze, <b>PRESIDENT</b> è cresciuto fino a sviluppare una <b>gamma completa</b> di
+          prodotti per l’igiene orale, formulati con ingredienti sicuri e delicati.
+        </p>
+        <p class="cover__p">
+          Una risposta specifica a ogni esigenza: dalla <b>protezione quotidiana</b> alla <b>cura più avanzata</b>, dalla
+          prevenzione della carie alla salute delle gengive, fino all’<b>igiene dei più piccoli</b>.
+        </p>
+        <div class="cover__actions">
+          <button type="button" class="btn btn--primary" data-scroll-to="linee-t">
+            Scopri le linee <Icon name="arrow-down" />
+          </button>
+          <Button
+            href={amazonUrl}
+            variant="secondary"
+            external
+            ariaLabel="Acquista su Amazon: si apre su Amazon in una nuova scheda"
+          >Acquista su Amazon</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lines" aria-labelledby="linee-t">
+    <div class="container">
+      <div class="lines__head">
+        <h2 class="section-title lines__title" id="linee-t" tabindex="-1">Un colore, un’esigenza</h2>
+        <p class="subtitle">Un linguaggio visivo che guida la scelta</p>
+      </div>
+      <ul role="list" class="lines__grid">
+        {linee.map((l) => (
+          <li><LineaTile linea={l} /></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-scroll-to]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.scrollTo || '');
+      if (!target) return;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      target.focus({ preventScroll: true });
+    });
+  });
+</script>
+
+<style>
+  /* ---------- Cover (mobile first: foto sopra, testi sotto) ---------- */
+  .cover { position: relative; background: var(--c-bg-gamma-hero); }
+  .cover__img {
+    display: block;
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    object-position: 78% 50%;
+  }
+  .cover__inner { padding: 32px 0 48px; }
+  .cover__text { display: flex; flex-direction: column; }
+  .cover__title {
+    font-size: 48px;
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-title);
+    line-height: 1;
+    color: var(--c-strong);
+  }
+  .cover__subtitle {
+    margin-top: 16px;
+    font-size: 20px;
+    font-weight: var(--fw-bold);
+    font-style: italic;
+    line-height: 1.35;
+    color: var(--c-strong);
+  }
+  .cover__p { margin-top: 12px; font-size: 17px; line-height: var(--lh-body); color: var(--c-text); }
+  .cover__p--first { margin-top: 20px; }
+  .cover__actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+  .cover__actions > :global(*) { width: 100%; white-space: nowrap; }
+
+  /* ---------- Griglia linee ---------- */
+  .lines { padding: 48px 0 64px; }
+  .lines__head { display: flex; flex-direction: column; gap: 12px; }
+  .lines__title { scroll-margin-top: calc(var(--header-h) + 24px); }
+  .lines__title:focus { outline: none; }
+  .lines__title:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .lines__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 32px 0 0;
+  }
+  .lines__grid > li { display: flex; }
+
+  @media (min-width: 600px) {
+    .lines__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .cover__actions { flex-direction: row; flex-wrap: wrap; }
+    .cover__actions > :global(*) { width: auto; }
+  }
+
+  /* ---------- Desktop (tavola 1440) ---------- */
+  @media (min-width: 1024px) {
+    .cover { min-height: 640px; overflow: hidden; display: flex; }
+    .cover__img {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      object-position: 100% 50%;
+    }
+    .cover__inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 640px;
+      padding: 48px 0;
+    }
+    .cover__text { width: 500px; }
+    .cover__title { font-size: 80px; }
+    .cover__subtitle { font-size: 24px; }
+    .cover__p { font-size: 18px; }
+    .cover__actions { flex-wrap: nowrap; gap: 16px; margin-top: 36px; }
+
+    .lines { padding: 50px 0 100px; }
+    .lines__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 48px; }
+  }
+</style>

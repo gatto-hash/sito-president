@@ -1,0 +1,97 @@
+---
+import Button from '../Button.astro';
+import LineIcon from '../LineIcon.astro';
+import BadgeMils from '../badge/BadgeMils.astro';
+import { testoLineaSu, type Linea } from '../../data/linee';
+import type { ContenutiLinea } from '../../data/linee-contenuti';
+import { hrefProdotto, type Prodotto } from '../../data/prodotti';
+
+interface Props {
+  linea: Linea;
+  spazzolino: NonNullable<ContenutiLinea['spazzolino']>;
+  prodotto: Prodotto;
+}
+const { linea, spazzolino: s, prodotto: p } = Astro.props;
+---
+<section
+  class="lspz"
+  aria-labelledby="spazzolino-t"
+  style={`--sp-light:${linea.tintaChiara};--sp-mid:${linea.tintaMedia}`}
+>
+  <div class="container lspz__grid">
+    <figure class="lspz__figure">
+      <img src={s.immagine} alt={s.alt} width={s.larghezza} height={s.altezza} loading="lazy" />
+      {p.mils !== undefined && <span class="lspz__badge"><BadgeMils mils={p.mils} /></span>}
+    </figure>
+    <div class="lspz__text">
+      <p class="eyebrow" style={`color:${testoLineaSu(linea, '#FFFFFF')}`}>LO SPAZZOLINO DELLA LINEA</p>
+      <h2 class="lspz__title" id="spazzolino-t" style={`color:${testoLineaSu(linea, '#FFFFFF', 3)}`}>
+        {p.nome} <span>{p.claim}</span>
+      </h2>
+      {p.mils !== undefined && (
+        <div class="lspz__mils">
+          <BadgeMils mils={p.mils} />
+          <span set:html={s.dettaglioMils} />
+        </div>
+      )}
+      <div class="lspz__paras">
+        {s.paragrafi.map((t) => <p set:html={t} />)}
+      </div>
+      <h3 class="lspz__plus-title">PLUS DI PRODOTTO</h3>
+      <ul role="list" class="lspz__plus">
+        {s.plus.map((t) => (
+          <li><LineIcon name="spunta" size={18} strokeWidth={2.6} color={testoLineaSu(linea, '#FFFFFF', 3)} class="lspz__check" /><span>{t}</span></li>
+        ))}
+      </ul>
+      {s.nota && <p class="lspz__note">{s.nota}</p>}
+      <div class="lspz__actions">
+        <Button href={hrefProdotto(p)} arrow ariaLabel={`Scheda prodotto: ${p.nome}`}>Scheda prodotto</Button>
+        <Button href={linea.amazonUrl} variant="secondary" external ariaLabel="Acquista su Amazon: si apre su Amazon in una nuova scheda">Acquista su Amazon</Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lspz { padding: var(--section-pad) 0; }
+  .lspz__grid { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center; }
+  .lspz__figure {
+    position: relative;
+    margin: 0;
+    height: 420px;
+    border-radius: 0 0 48px 0;
+    overflow: hidden;
+    background: radial-gradient(110% 90% at 45% 60%, #FFFFFF 0%, var(--sp-light) 50%, var(--sp-mid) 100%);
+  }
+  .lspz__figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lspz__badge { position: absolute; left: 20px; top: 20px; z-index: 1; }
+
+  .lspz__text { display: flex; flex-direction: column; }
+  .lspz__title {
+    margin-top: 14px;
+    font-size: 30px;
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-title);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+  .lspz__title span { font-weight: var(--fw-light); color: var(--c-strong); }
+  .lspz__mils { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 20px; font-size: 15px; color: var(--c-muted); }
+  .lspz__mils :global(b) { color: var(--c-strong); }
+  .lspz__paras { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+  .lspz__paras p { font-size: 17px; line-height: var(--lh-body); }
+  .lspz__plus-title { margin-top: 28px; font-size: 13px; font-weight: var(--fw-bold); letter-spacing: .14em; line-height: 20px; color: var(--c-strong); }
+  .lspz__plus { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 0; }
+  .lspz__plus li { display: flex; gap: 10px; align-items: flex-start; font-size: 17px; line-height: 1.5; color: var(--c-strong); }
+  :global(.lspz__check) { flex: none; margin-top: 2px; }
+  .lspz__note { margin-top: 20px; font-size: 15px; line-height: 1.5; color: var(--c-muted); }
+  .lspz__actions { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 32px; }
+
+  @media (min-width: 1024px) {
+    .lspz__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+    .lspz__figure { grid-column: span 6; height: 729px; }
+    .lspz__badge { left: 32px; top: 32px; }
+    .lspz__text { grid-column: 7 / span 6; }
+    .lspz__title { font-size: 40px; }
+  }
+</style>

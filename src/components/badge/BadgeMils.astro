@@ -1,0 +1,56 @@
+---
+/**
+ * Badge MILS: fondo #4A6FA0, testo bianco, icona a 9 puntini di diametro crescente.
+ * size: mini (solo "MILS", decorativo) · sm (card) · md (scienza, spazzolino, scheda).
+ */
+import { etichettaMils } from '../../data/prodotti';
+interface Props {
+  mils?: number;
+  size?: 'mini' | 'sm' | 'md';
+}
+const { mils, size = 'md' } = Astro.props;
+const decorativo = size === 'mini' || mils === undefined;
+const icona = { mini: 14, sm: 14, md: 17 }[size];
+const punti = [0, 1, 2].flatMap((r) => [0, 1, 2].map((c) => ({ cx: 4 + c * 8, cy: 4 + r * 8, r: 1.6 + c * 0.4 })));
+---
+<span
+  class:list={['badge-mils', `badge-mils--${size}`]}
+  {...(decorativo
+    ? { 'aria-hidden': 'true' }
+    : { role: 'img', 'aria-label': etichettaMils(mils!), title: `${mils} MILS – diametro delle setole` })}
+>
+  <span class="badge-mils__in">
+    <svg aria-hidden="true" width={icona} height={icona} viewBox="0 0 24 24" fill="currentColor">
+      {punti.map((p) => <circle cx={p.cx} cy={p.cy} r={p.r} />)}
+    </svg>
+    {decorativo ? 'MILS' : `${mils} MILS`}
+  </span>
+</span>
+
+<style>
+  .badge-mils {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    background: var(--c-mils-bg);
+    color: var(--c-mils-text);
+    border-radius: 3px;
+    transform: skewX(-12deg);
+    padding: 7px 14px 7px 12px;
+  }
+  .badge-mils__in {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transform: skewX(12deg);
+    font-size: 15px;
+    font-weight: var(--fw-bold);
+    letter-spacing: .04em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .badge-mils svg { flex: none; }
+  .badge-mils--mini, .badge-mils--sm { padding: 4px 10px 4px 8px; }
+  .badge-mils--mini .badge-mils__in { font-size: 12px; }
+  .badge-mils--sm .badge-mils__in { font-size: 13px; }
+</style>

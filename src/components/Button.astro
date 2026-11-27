@@ -1,0 +1,29 @@
+---
+/**
+ * Pulsante a pillola (sempre con testo visibile).
+ * variant: primary | secondary | on-color | outline-white
+ * external: apre in nuova scheda con icona "freccia che esce"; passare ariaLabel descrittiva.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'on-color' | 'outline-white';
+  size?: 'md' | 'sm';
+  arrow?: boolean;
+  external?: boolean;
+  ariaLabel?: string;
+  class?: string;
+}
+const { href, variant = 'primary', size = 'md', arrow = false, external = false, ariaLabel, class: className } = Astro.props;
+---
+<a
+  class:list={['btn', `btn--${variant}`, size === 'sm' && 'btn--sm', className]}
+  href={href}
+  aria-label={ariaLabel}
+  {...(external ? { target: '_blank', rel: 'noopener' } : {})}
+>
+  <slot />
+  {arrow && !external && <Icon name="arrow-right" size={18} />}
+  {external && <Icon name="external" size={18} />}
+</a>

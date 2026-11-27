@@ -1,0 +1,62 @@
+---
+/**
+ * Template della pagina di linea: /la-gamma/<linea>/.
+ * Tutti i testi, i colori e i prodotti vengono dai dati (linee.ts, linee-contenuti.ts, prodotti.ts).
+ * Le sezioni senza contenuto nei dati vengono omesse.
+ */
+import Base from '../../../layouts/Base.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import LineaCover from '../../../components/linea/LineaCover.astro';
+import LineaProblema from '../../../components/linea/LineaProblema.astro';
+import LineaSoluzione from '../../../components/linea/LineaSoluzione.astro';
+import LineaScienza from '../../../components/linea/LineaScienza.astro';
+import LineaSpazzolino from '../../../components/linea/LineaSpazzolino.astro';
+import LineaProdotti from '../../../components/linea/LineaProdotti.astro';
+import LineaAcquista from '../../../components/linea/LineaAcquista.astro';
+import LineaNavigatore from '../../../components/linea/LineaNavigatore.astro';
+import AmazonBar from '../../../components/linea/AmazonBar.astro';
+import { linee, type Linea } from '../../../data/linee';
+import { getContenuti } from '../../../data/linee-contenuti';
+import { prodottiDellaLinea } from '../../../data/prodotti';
+import { rotte } from '../../../data/rotte';
+
+export function getStaticPaths() {
+  return linee.map((linea) => ({ params: { linea: linea.id }, props: { linea } }));
+}
+
+interface Props {
+  linea: Linea;
+}
+const { linea } = Astro.props;
+const contenuti = getContenuti(linea.id);
+const prodotti = prodottiDellaLinea(linea.id);
+const spazzolino = contenuti.spazzolino && prodotti.find((p) => p.slug === contenuti.spazzolino!.prodotto);
+const conSoluzione = linea.attivi.length > 0 || linea.benefici.length > 0 || !!contenuti.soluzione;
+---
+<Base
+  title={`${linea.nome} · ${linea.esigenza} · PRESIDENT`}
+  description={`PRESIDENT ${linea.nome}: ${linea.titolo}. ${linea.esigenza}.`}
+  sezione="la-gamma"
+  lineaCorrente={linea.id}
+>
+  <Breadcrumb
+    voci={[
+      { label: 'Home', href: rotte.home },
+      { label: 'La gamma', href: rotte.gamma },
+      { label: linea.nome, colore: linea.colore },
+    ]}
+  />
+  <div id="linea-cover">
+    <LineaCover linea={linea} contenuti={contenuti} />
+  </div>
+  {contenuti.problema && <LineaProblema linea={linea} problema={contenuti.problema} />}
+  {conSoluzione && <LineaSoluzione linea={linea} soluzione={contenuti.soluzione} />}
+  {contenuti.scienza && <LineaScienza linea={linea} scienza={contenuti.scienza} prodotti={prodotti} />}
+  {contenuti.spazzolino && spazzolino && (
+    <LineaSpazzolino linea={linea} spazzolino={contenuti.spazzolino} prodotto={spazzolino} />
+  )}
+  {prodotti.length > 0 && <LineaProdotti linea={linea} prodotti={prodotti} />}
+  <LineaAcquista linea={linea} />
+  <LineaNavigatore linea={linea} />
+  <AmazonBar href={linea.amazonUrl} dopo="linea-cover" />
+</Base>

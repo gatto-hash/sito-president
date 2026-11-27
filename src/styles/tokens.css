@@ -1,0 +1,115 @@
+/* PRESIDENT · Design token (vedi president-handoff/FONDAMENTA.md) */
+:root {
+  /* Font */
+  --font-sans: 'Cera Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  /* Colori di base */
+  --c-text: #3C3C3B;
+  --c-strong: #1D1D1B;
+  --c-muted: #5E5E5C;
+  --c-border: #E2E6E8;
+  --c-bg: #FFFFFF;
+  --c-bg-grey: #F2F1F0;
+  --c-bg-gamma-hero: #F3F5F6;
+  --c-link: #2B757E;
+  --c-link-hover: #1D1D1B;
+  --c-focus: #2B757E;
+  --c-acqua: #B0DDE2;
+  --c-acqua-light: #EAF6F7;
+  --c-menu-current: #E8F4F5;
+  --c-black: #000000;
+
+  /* Footer */
+  --c-footer-bg: #2B2B2A;
+  --c-footer-text: #FFFFFF;
+  --c-footer-muted: #BFC3C5;
+  --c-footer-divider: rgba(255, 255, 255, .14);
+
+  /* Badge e scale tecniche */
+  --c-rda-bg: #D9E021;
+  --c-rda-text: #1D1D1B;
+  --c-mils-bg: #4A6FA0;
+  --c-mils-text: #FFFFFF;
+  --c-rda-1: #A4D4C2; /* 0-70 */
+  --c-rda-2: #F9C772; /* 71-100 */
+  --c-rda-3: #F09A79; /* 101-150 */
+  --c-rda-4: #E8605D; /* 151-250 */
+
+  /* Tricolore */
+  --c-it-green: #009246;
+  --c-it-red: #CE2B37;
+
+  /* Tipografia (mobile-first; i valori desktop sono sotto) */
+  --fs-h1: 44px;
+  --fs-h2: 32px;
+  --fs-display: 34px;      /* H2 delle slide */
+  --fs-subtitle: 19px;
+  --fs-lead: 18px;         /* paragrafo delle slide */
+  --fs-eyebrow: 13px;
+  --fs-body: 17px;
+  --fs-body-lg: 17px;
+  --fs-nav: 14px;
+  --lh-body: 1.65;
+  --ls-eyebrow: .16em;
+  --ls-title: .02em;
+  --ls-nav: .08em;
+  --ls-button: .06em;
+
+  /* Layout */
+  --container: 1200px;
+  --gutter: 24px;
+  --page-gutter: 16px;
+  --section-pad: 64px;
+  --header-h: 64px;
+
+  /* Spaziature (scala di 8) */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 40px;
+  --sp-6: 48px;
+  --sp-8: 64px;
+
+  /* Forme ed effetti */
+  --radius-pill: 999px;
+  --radius-card: 12px;
+  --shadow-card-hover: 0 16px 36px rgba(29, 29, 27, .12);
+  --shadow-panel: 0 18px 40px rgba(29, 29, 27, .14);
+  --transition: .2s ease;
+
+  /* Pulsanti */
+  --btn-h: 56px;
+  --btn-px: 28px;
+  --btn-fs: 15px;
+
+  /* Focus */
+  --focus-ring: 3px solid var(--c-focus);
+  --focus-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 24px;
+    --fs-h2: 38px;
+    --fs-display: 44px;
+    --fs-lead: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fs-h1: 80px;
+    --fs-h2: 44px;
+    --fs-display: 58px;
+    --fs-subtitle: 22px;
+    --fs-lead: 21px;
+    --fs-body-lg: 18px;
+    --section-pad: 112px;
+    --header-h: 88px;
+  }
+}

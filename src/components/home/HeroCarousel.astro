@@ -1,0 +1,352 @@
+---
+/**
+ * Slideshow "In evidenza" (Homepage).
+ * - Nessun autoplay di default. Con autoplay=true: 7 s per slide, pulsante pausa/avvio sempre
+ *   visibile, pausa al focus e all'hover, disattivato con prefers-reduced-motion.
+ * - Le slide inattive sono `inert` e visibility:hidden: non sono lette né raggiungibili.
+ */
+import Button from '../Button.astro';
+import Icon from '../Icon.astro';
+import { rotte } from '../../data/rotte';
+
+interface Props {
+  autoplay?: boolean;
+  slideIniziale?: 0 | 1 | 2;
+}
+const { autoplay = false, slideIniziale = 0 } = Astro.props;
+
+const mosaico = Array.from({ length: 9 }, (_, i) => `/assets/img/mosaic-${i + 1}.jpg`);
+const totale = 3;
+const attiva = (i: number) => i === slideIniziale;
+---
+<section
+  class="hero"
+  aria-roledescription="carousel"
+  aria-label="In evidenza"
+  data-carousel
+  data-autoplay={autoplay ? 'true' : 'false'}
+  data-start={slideIniziale}
+>
+  <div class="hero__slides" id="hero-slides" aria-live={autoplay ? 'off' : 'polite'}>
+    <!-- Slide 1 -->
+    <div
+      class="slide slide--1"
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`1 di ${totale}`}
+      data-slide
+      data-active={String(attiva(0))}
+      inert={!attiva(0)}
+    >
+      <div class="slide__media">
+        <img
+          src="/assets/img/cover-ribbon-ruotata.jpg"
+          alt=""
+          width="1173"
+          height="830"
+          fetchpriority={attiva(0) ? 'high' : undefined}
+          loading={attiva(0) ? undefined : 'lazy'}
+          class="slide__bg slide__bg--ribbon"
+        />
+        <span class="slide__veil slide__veil--1" aria-hidden="true"></span>
+      </div>
+      <div class="slide__body">
+        <div class="container">
+          <div class="slide__text slide__text--1">
+            <p class="eyebrow slide__eyebrow slide__eyebrow--dark">NOVE LINEE, UN COLORE PER OGNI ESIGENZA</p>
+            <h2 class="slide__title">L’igiene orale si colora di benessere</h2>
+            <p class="slide__lead">Una gamma completa di derivazione professionale, sviluppata e prodotta in Italia.</p>
+            <div class="slide__actions">
+              <Button href={rotte.gamma} size="sm" arrow>Scopri la gamma</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div
+      class="slide slide--2"
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`2 di ${totale}`}
+      data-slide
+      data-active={String(attiva(1))}
+      inert={!attiva(1)}
+    >
+      <div class="slide__media">
+        <img src="/assets/img/mosaic-bg.jpg" alt="" width="830" height="1173" loading="lazy" class="slide__bg slide__bg--mosaic" />
+        <span class="slide__veil slide__veil--2" aria-hidden="true"></span>
+        <div class="container slide__mosaic-wrap">
+          <ul role="list" class="mosaic" aria-hidden="true">
+            {mosaico.map((src) => (
+              <li><img src={src} alt="" width="210" height="263" loading="lazy" /></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div class="slide__body">
+        <div class="container">
+          <div class="slide__text slide__text--2">
+            <p class="eyebrow slide__eyebrow">LA GAMMA PRESIDENT</p>
+            <h2 class="slide__title">Il sorriso di cui ci si può fidare</h2>
+            <p class="slide__lead">Dalla protezione quotidiana alla cura più avanzata, fino all’igiene dei più piccoli.</p>
+            <div class="slide__actions">
+              <Button href={rotte.gamma} size="sm" arrow>Scopri la gamma</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div
+      class="slide slide--3"
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`3 di ${totale}`}
+      data-slide
+      data-active={String(attiva(2))}
+      inert={!attiva(2)}
+    >
+      <div class="slide__media">
+        <div class="container slide__stemma-wrap">
+          <img
+            src="/assets/img/stemma-nero.svg"
+            alt="Il nuovo stemma PRESIDENT: una P coronata da un ramoscello di quercia"
+            width="420"
+            height="381"
+            loading="lazy"
+            class="slide__stemma"
+          />
+        </div>
+      </div>
+      <div class="slide__body">
+        <div class="container">
+          <div class="slide__text slide__text--3">
+            <p class="eyebrow slide__eyebrow">IL NUOVO STEMMA</p>
+            <h2 class="slide__title">Come si rinnova un’icona della salute orale</h2>
+            <p class="slide__lead">Un nuovo stemma che guarda al futuro.</p>
+            <div class="slide__actions">
+              <Button href={rotte.gamma} size="sm" arrow>Scopri la gamma</Button>
+              <Button href={rotte.chiSiamo} size="sm" variant="secondary">La nostra storia</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__controls" data-controls hidden>
+    <div class="container">
+      <div class="controls">
+        {autoplay && (
+          <button type="button" class="controls__round" aria-label="Metti in pausa la presentazione" data-pause>
+            <span class="controls__icon controls__icon--pause"><Icon name="pause" size={20} strokeWidth={2.4} /></span>
+            <span class="controls__icon controls__icon--play"><Icon name="play" size={18} strokeWidth={1.5} /></span>
+          </button>
+        )}
+        <button type="button" class="controls__round" aria-label="Slide precedente" aria-controls="hero-slides" data-prev>
+          <Icon name="arrow-left" size={20} />
+        </button>
+        <button type="button" class="controls__round" aria-label="Slide successiva" aria-controls="hero-slides" data-next>
+          <Icon name="arrow-right" size={20} />
+        </button>
+        <div class="controls__dots">
+          {Array.from({ length: totale }, (_, i) => (
+            <button
+              type="button"
+              class="controls__dot"
+              aria-label={`Vai alla slide ${i + 1} di ${totale}`}
+              aria-current={attiva(i) ? 'true' : undefined}
+              aria-controls="hero-slides"
+              data-dot={i}
+            >
+              <span class="controls__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span class="controls__bar" aria-hidden="true"></span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initCarousels } from '../../scripts/carousel';
+  initCarousels();
+</script>
+
+<style>
+  /* ================= Mobile first ================= */
+  .hero { position: relative; background: #FFFFFF; overflow: hidden; }
+
+  .hero__slides { display: grid; }
+  .slide {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    transition: opacity .45s ease, visibility 0s linear 0s;
+  }
+  .slide[data-active='false'] {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .45s ease, visibility 0s linear .45s;
+  }
+
+  .slide__media {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    flex: none;
+  }
+  .slide__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .slide__bg--ribbon { object-position: 50% 0%; }
+  .slide__bg--mosaic { object-position: 50% 70%; }
+  .slide__veil { position: absolute; inset: 0; }
+
+  .slide--1 .slide__media { background: #B9B9B9; }
+  .slide__veil--1 { display: none; }
+  .slide__veil--2 { background: rgba(255, 255, 255, .25); }
+
+  .slide__mosaic-wrap { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .mosaic {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    gap: 6px;
+    margin: 0;
+  }
+  .mosaic img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 152 / 176;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 8px 18px rgba(29, 29, 27, .14);
+  }
+
+  .slide--3 .slide__media { background: linear-gradient(115deg, #FFFFFF 0%, #EAF6F7 50%, #B0DDE2 100%); }
+  .slide__stemma-wrap { height: 100%; display: flex; align-items: center; justify-content: center; }
+  .slide__stemma { width: 180px; height: auto; }
+
+  .slide__body { position: relative; padding: 28px 0 24px; background: #FFFFFF; flex: 1; }
+  .slide__text { display: flex; flex-direction: column; gap: 16px; max-width: 560px; }
+  .slide__eyebrow--dark { color: var(--c-strong); }
+  .slide__title {
+    font-size: var(--fs-display);
+    font-weight: var(--fw-light);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-title);
+    line-height: 1.06;
+    color: var(--c-strong);
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .slide__lead {
+    max-width: 500px;
+    font-size: var(--fs-lead);
+    font-weight: var(--fw-bold);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--c-strong);
+  }
+  .slide__actions { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 8px; }
+
+  /* Controlli */
+  .hero__controls { position: relative; z-index: 5; padding: 0 0 24px; background: #FFFFFF; }
+  .hero__controls[hidden] { display: none; }
+  .controls { display: flex; align-items: center; gap: 12px; }
+  .controls__round {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid var(--c-strong);
+    background: rgba(255, 255, 255, .85);
+    color: var(--c-strong);
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition);
+  }
+  .controls__round:hover { background: var(--c-strong); color: #FFFFFF; }
+  .controls__icon { display: flex; }
+  .controls__icon--play { display: none; }
+  .controls__round[data-paused='true'] .controls__icon--pause { display: none; }
+  .controls__round[data-paused='true'] .controls__icon--play { display: flex; }
+
+  .controls__dots {
+    display: flex;
+    gap: 4px;
+    margin: 0 4px;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, .85);
+    border-radius: var(--radius-pill);
+  }
+  .controls__dot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    width: 52px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .controls__num { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: .08em; line-height: 1; color: var(--c-muted); }
+  .controls__bar { display: block; width: 100%; height: 3px; border-radius: 2px; background: var(--c-border); }
+  .controls__dot[aria-current='true'] .controls__num { color: var(--c-strong); }
+  .controls__dot[aria-current='true'] .controls__bar { background: var(--c-strong); }
+  .controls__dot:hover .controls__bar { background: var(--c-muted); }
+  .controls__dot[aria-current='true']:hover .controls__bar { background: var(--c-strong); }
+
+  @media (min-width: 400px) {
+    .controls { gap: 16px; }
+    .controls__dots { margin: 0 8px; padding: 2px 12px; }
+    .controls__dot { width: 64px; }
+    .controls__bar { width: 56px; }
+  }
+
+  @media (min-width: 600px) {
+    .slide__media { height: 300px; }
+    .mosaic { grid-template-columns: repeat(3, 76px); gap: 8px; }
+    .slide__stemma { width: 220px; }
+  }
+
+  /* ================= Desktop (tavola 1440) ================= */
+  @media (min-width: 1024px) {
+    .hero__slides { min-height: 640px; }
+    .slide { display: block; position: relative; min-height: 640px; }
+
+    .slide__media { position: absolute; inset: 0; height: auto; }
+    .slide--1 { background: #B9B9B9; }
+    .slide__veil--1 { display: block; background: linear-gradient(90deg, #FFFFFF 23%, rgba(255, 255, 255, 0) 100%); }
+    .slide__veil--2 { background: linear-gradient(90deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .78) 62%); }
+
+    .slide__mosaic-wrap { display: block; height: auto; padding-top: 40px; }
+    .mosaic { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: min(476px, 48%); }
+
+    .slide--3 { background: linear-gradient(115deg, #FFFFFF 0%, #EAF6F7 50%, #B0DDE2 100%); }
+    .slide__stemma-wrap { position: relative; display: block; height: 100%; }
+    .slide__stemma { position: absolute; right: 30px; top: 110px; width: min(420px, 36%); }
+
+    .slide__body { background: transparent; padding: 0 0 132px; }
+    .slide__text { gap: 20px; }
+    .slide__text--1 { width: 480px; padding-top: 104px; }
+    .slide__text--2 { width: min(560px, 50%); margin-left: 50%; padding-top: 108px; }
+    .slide__text--3 { width: 560px; max-width: 58%; padding-top: 92px; }
+    .slide__actions { margin-top: 12px; }
+
+    .hero__controls { position: absolute; left: 0; right: 0; bottom: 36px; padding: 0; background: transparent; }
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroCarousel from '../components/home/HeroCarousel.astro';
+import Intro from '../components/home/Intro.astro';
+import Novita from '../components/home/Novita.astro';
+---
+<Base
+  title="PRESIDENT · L’igiene orale si colora di benessere"
+  description="PRESIDENT: nove linee di igiene orale di derivazione professionale, un colore per ogni esigenza. Sviluppate e prodotte in Italia da Betafarma."
+  sezione="home"
+>
+  <h1 class="sr-only">PRESIDENT, igiene orale di derivazione professionale sviluppata e prodotta in Italia</h1>
+  <!-- autoplay: opzione di configurazione (default false). -->
+  <HeroCarousel autoplay={false} />
+  <Intro />
+  <Novita />
+</Base>
